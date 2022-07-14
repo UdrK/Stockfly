@@ -1,0 +1,3 @@
+C:/Users/costa/Home/Opus/_Computer_Science/Projects/stockfly/out/build/x64-debug/CMakeFiles/stockfly.dir
+C:/Users/costa/Home/Opus/_Computer_Science/Projects/stockfly/out/build/x64-debug/CMakeFiles/edit_cache.dir
+C:/Users/costa/Home/Opus/_Computer_Science/Projects/stockfly/out/build/x64-debug/CMakeFiles/rebuild_cache.dir
