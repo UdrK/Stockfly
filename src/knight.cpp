@@ -12,6 +12,6 @@ Knight::Knight(bool side, int position) {
 }
 
 std::vector<int> Knight::pseudo_legal_moves(Board* board) {
-    std::vector<int> moves = Piece::knight_movement(board);
+    std::vector<int> moves = Piece::knight_movement(board, Piece::position, Piece::side);
     return moves;
 }

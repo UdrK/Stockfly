@@ -12,6 +12,6 @@ Pawn::Pawn(bool side, int position) {
 }
 
 std::vector<int> Pawn::pseudo_legal_moves(Board* board) {
-    std::vector<int> moves = Piece::pawn_movement(board);
+    std::vector<int> moves = Piece::pawn_movement(board, Piece::position, Piece::side);
     return moves;
 }

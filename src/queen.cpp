@@ -12,6 +12,6 @@ Queen::Queen(bool side, int position) {
 }
 
 std::vector<int> Queen::pseudo_legal_moves(Board* board) {
-    std::vector<int> moves = Piece::piece_movement(board, false, true, true);
+    std::vector<int> moves = Piece::piece_movement(board, Piece::position, Piece::side, false, true, true);
     return moves;
 }

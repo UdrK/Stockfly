@@ -4,13 +4,13 @@
 #include "board.h"
 #include "utils.h"
 
-std::vector<int> Piece::piece_movement(Board* board, bool king, bool diagonal, bool orthogonal) {
+std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bool king, bool diagonal, bool orthogonal) {
 
     std::vector<int> list;
 
     // position = (8 * rank) + file
-    int file = Piece::position % 8;
-    int rank = ((Piece::position - file) / 8);
+    int file = position % 8;
+    int rank = ((position - file) / 8);
 
     // how many ranks up/down files left/right ?
     int ranks_up = rank;
@@ -40,11 +40,11 @@ std::vector<int> Piece::piece_movement(Board* board, bool king, bool diagonal, b
 
         // first the diagonal from the top left towards the piece
         if (i < files_left && diagonal && nwe_n_diag) {
-            int nort_west_east_diag = Piece::position - ((i + 1) * 9);
+            int nort_west_east_diag = position - ((i + 1) * 9);
             // other sections of pieces trajectories work the same:
             // if empty square or enemy piece, add as possible move
             if ((board->piece_at(nort_west_east_diag) == NULL) || 
-                (board->piece_at(nort_west_east_diag)->side != Piece::side)) {
+                (board->piece_at(nort_west_east_diag)->side != side)) {
                 list.push_back(nort_west_east_diag);
             }
             // if i find a piece, no more adding possible moves from this section of diagonal
@@ -55,9 +55,9 @@ std::vector<int> Piece::piece_movement(Board* board, bool king, bool diagonal, b
 
         // then the orthogonal "file" from up to the piece
         if (orthogonal && n_orth) {
-            int north_file = Piece::position - ((i + 1) * 8);
+            int north_file = position - ((i + 1) * 8);
             if ((board->piece_at(north_file) == NULL) ||
-                (board->piece_at(north_file)->side != Piece::side)) {
+                (board->piece_at(north_file)->side != side)) {
                 list.push_back(north_file);
             }
             if (board->piece_at(north_file) != NULL) {
@@ -67,9 +67,9 @@ std::vector<int> Piece::piece_movement(Board* board, bool king, bool diagonal, b
 
         // then the diagonal from the top right to the piece
         if (i < files_right && diagonal && new_n_diag) {
-            int north_east_west_diag = Piece::position - ((i + 1) * 7);
+            int north_east_west_diag = position - ((i + 1) * 7);
             if ((board->piece_at(north_east_west_diag) == NULL) ||
-                (board->piece_at(north_east_west_diag)->side != Piece::side)) {
+                (board->piece_at(north_east_west_diag)->side != side)) {
                 list.push_back(north_east_west_diag);
             }
             if (board->piece_at(north_east_west_diag) != NULL) {
@@ -82,9 +82,9 @@ std::vector<int> Piece::piece_movement(Board* board, bool king, bool diagonal, b
     // orthogonal rank-like possible moves (left of piece)
     if (orthogonal) {
         for (int i = 0; i < files_left && west_orth; i++) {
-            int west_file = Piece::position - ((i + 1) * 1);
+            int west_file = position - ((i + 1) * 1);
             if ((board->piece_at(west_file) == NULL) ||
-                (board->piece_at(west_file)->side != Piece::side)) {
+                (board->piece_at(west_file)->side != side)) {
                 list.push_back(west_file);
             }
             if (board->piece_at(west_file) != NULL) {
@@ -96,9 +96,9 @@ std::vector<int> Piece::piece_movement(Board* board, bool king, bool diagonal, b
     // (right of piece)
     if (orthogonal) {
         for (int i = 0; i < files_right && east_orth; i++) {
-            int east_file = Piece::position + ((i + 1) * 1);
+            int east_file = position + ((i + 1) * 1);
             if ((board->piece_at(east_file) == NULL) ||
-                (board->piece_at(east_file)->side != Piece::side)) {
+                (board->piece_at(east_file)->side != side)) {
                 list.push_back(east_file);
             }
             if (board->piece_at(east_file) != NULL) {
@@ -111,9 +111,9 @@ std::vector<int> Piece::piece_movement(Board* board, bool king, bool diagonal, b
     for (int i = 0; i < ranks_down; i++) {
 
         if (i < files_left && diagonal && nwe_s_diag) {
-            int nort_west_east_diag = Piece::position + ((i + 1) * 7);
+            int nort_west_east_diag = position + ((i + 1) * 7);
             if ((board->piece_at(nort_west_east_diag) == NULL) ||
-                (board->piece_at(nort_west_east_diag)->side != Piece::side)) {
+                (board->piece_at(nort_west_east_diag)->side != side)) {
                 list.push_back(nort_west_east_diag);
             }
             if (board->piece_at(nort_west_east_diag) != NULL) {
@@ -122,9 +122,9 @@ std::vector<int> Piece::piece_movement(Board* board, bool king, bool diagonal, b
         }
 
         if (orthogonal && s_orth) {
-            int north_file = Piece::position + ((i + 1) * 8);
+            int north_file = position + ((i + 1) * 8);
             if ((board->piece_at(north_file) == NULL) ||
-                (board->piece_at(north_file)->side != Piece::side)) {
+                (board->piece_at(north_file)->side != side)) {
                 list.push_back(north_file);
             }
             if (board->piece_at(north_file) != NULL) {
@@ -133,9 +133,9 @@ std::vector<int> Piece::piece_movement(Board* board, bool king, bool diagonal, b
         }
 
         if (i < files_right && diagonal && new_s_diag) {
-            int north_east_west_diag = Piece::position + ((i + 1) * 9);
+            int north_east_west_diag = position + ((i + 1) * 9);
             if ((board->piece_at(north_east_west_diag) == NULL) ||
-                (board->piece_at(north_east_west_diag)->side != Piece::side)) {
+                (board->piece_at(north_east_west_diag)->side != side)) {
                 list.push_back(north_east_west_diag);
             }
             if (board->piece_at(north_east_west_diag) != NULL) {
@@ -148,13 +148,13 @@ std::vector<int> Piece::piece_movement(Board* board, bool king, bool diagonal, b
     return list;
 }
 
-std::vector<int> Piece::knight_movement(Board* board) {
+std::vector<int> Piece::knight_movement(Board* board, int position, bool side) {
 
     std::vector<int> list;
 
     // position = (8 * rank) + file
-    int file = Piece::position % 8;
-    int rank = ((Piece::position - file) / 8);
+    int file = position % 8;
+    int rank = ((position - file) / 8);
 
     int ranks_up = rank;
     int ranks_down = (7 - rank);
@@ -168,47 +168,47 @@ std::vector<int> Piece::knight_movement(Board* board) {
 
         // if enough room (at least 1 file) to the left
         if (file > 0) {
-            candidate_moves.push_back(Piece::position - 17);
+            candidate_moves.push_back(position - 17);
         }
 
         // same but right
         if (file < 7) {
-            candidate_moves.push_back(Piece::position - 15);
+            candidate_moves.push_back(position - 15);
         }
     }
 
     // if at least 1 rank north of the piece
     if (rank > 0) {
         if (file > 1) {
-            candidate_moves.push_back(Piece::position - 10);
+            candidate_moves.push_back(position - 10);
         }
         if (file < 6) {
-            candidate_moves.push_back(Piece::position - 6);
+            candidate_moves.push_back(position - 6);
         }
     }
 
     //  same but south
     if (rank < 7) {
         if (file > 1) {
-            candidate_moves.push_back(Piece::position + 6);
+            candidate_moves.push_back(position + 6);
         }
         if (file < 6) {
-            candidate_moves.push_back(Piece::position + 10);
+            candidate_moves.push_back(position + 10);
         }
     }
 
     if (rank < 6) {
         if (file > 0) {
-            candidate_moves.push_back(Piece::position + 15);
+            candidate_moves.push_back(position + 15);
         }
         if (file < 7) {
-            candidate_moves.push_back(Piece::position + 17);
+            candidate_moves.push_back(position + 17);
         }
     }
 
     // return only moves s.t. your knight doesn't take your pieces
     for (int move : candidate_moves) {
-        if (board->piece_at(move) == NULL || board->piece_at(move)->side != Piece::side) {
+        if (board->piece_at(move) == NULL || board->piece_at(move)->side != side) {
             list.push_back(move);
         }
     }
@@ -216,26 +216,26 @@ std::vector<int> Piece::knight_movement(Board* board) {
     return list;
 }
 
-std::vector<int> Piece::pawn_movement(Board* board) {
+std::vector<int> Piece::pawn_movement(Board* board, int position, bool side) {
 
     std::vector<int> list;
 
     // pawns move in different directions based on player color
     // this allows generalization
-    int side_multiplier = Piece::side ? -1 : 1;
+    int side_multiplier = side ? -1 : 1;
 
     // position = (8 * rank) + file
-    int file = Piece::position % 8;
-    int rank = ((Piece::position - file) / 8);
+    int file = position % 8;
+    int rank = ((position - file) / 8);
 
-    int one_square_move = Piece::position + side_multiplier * 8;
+    int one_square_move = position + side_multiplier * 8;
     // check for pieces in the way
     if (board->piece_at(one_square_move) == NULL) {
         list.push_back(one_square_move);
 
         // if starting position, pawn can move two squares
-        if ((Piece::side && rank == 6) || (!Piece::side && rank == 1)) {
-            int two_squares_move = Piece::position + side_multiplier * 16;
+        if ((side && rank == 6) || (!side && rank == 1)) {
+            int two_squares_move = position + side_multiplier * 16;
             // given there aren't pieces in the way
             if (board->piece_at(two_squares_move) == NULL) {
                 list.push_back(two_squares_move);
@@ -245,20 +245,20 @@ std::vector<int> Piece::pawn_movement(Board* board) {
 
     // Normal takes
 
-    int take_square_one = Piece::position + side_multiplier * 7;
-    int take_square_two = Piece::position + side_multiplier * 9;
+    int take_square_one = position + side_multiplier * 7;
+    int take_square_two = position + side_multiplier * 9;
 
-    if (board->piece_at(take_square_one) != NULL && board->piece_at(take_square_one)->side != Piece::side) {
+    if (board->piece_at(take_square_one) != NULL && board->piece_at(take_square_one)->side != side) {
         // position +- 7 leads to "teleport" when white borders the board to the right and black to the left
         // so i only check this position when i'm white and not to the right, and when i'm black and not the left
-        if((Piece::side && file != 7) || (!Piece::side && file != 0))
+        if((side && file != 7) || (!side && file != 0))
             list.push_back(take_square_one);
     }
 
-    if (board->piece_at(take_square_two) != NULL && board->piece_at(take_square_two)->side != Piece::side) {
+    if (board->piece_at(take_square_two) != NULL && board->piece_at(take_square_two)->side != side) {
         // position +- 9 leads to "teleport" when white borders the board to the left, and black to the right
         // so i only check this position when i'm white and not to the left and when i'm black and not to the right
-        if ((Piece::side && file != 0) || (!Piece::side && file != 7))
+        if ((side && file != 0) || (!side && file != 7))
             list.push_back(take_square_two);
     }
 
@@ -273,7 +273,7 @@ std::vector<int> Piece::pawn_movement(Board* board) {
         // EITHER i'm white and i'm on the 5th rank OR i'm black and i'm on the 4th rank
         if (abs(file_distance) == 1 && ((rank == 3 && side_multiplier == -1) || (rank == 4 && side_multiplier == 1))) {
             // then take in the right direction and calculate resulting pawn position according to which side i am
-            list.push_back(Piece::position + side_multiplier * (8 - (side_multiplier * file_distance)));
+            list.push_back(position + side_multiplier * (8 - (side_multiplier * file_distance)));
         }
     }
 
@@ -281,55 +281,7 @@ std::vector<int> Piece::pawn_movement(Board* board) {
 }
 
 bool Piece::is_attacked(Board* board) {
-
-    // if piece was a queen/rook would it see an enemy queen/rook ? if piece is attacked
-    std::vector<int> rook_movement_squares = piece_movement(board, false, false, true);
-    for (int square : rook_movement_squares) {
-        if (board->piece_at(square)) {
-            std::string str = board->piece_at(square)->get_appearance();
-            char piece_type = std::toupper(char(str[0]));
-            if (board->piece_at(square)->side != Piece::side && piece_type == 'Q' || piece_type == 'R')
-                return true;
-        }
-    }
-
-    // if piece was a queen/bishop would it see an enemy queen/bishop ? if yes piece is attacked
-    std::vector<int> bishop_movement_squares = piece_movement(board, false, true, false);
-    for (int square : bishop_movement_squares) {
-        if (board->piece_at(square)) {
-            std::string str = board->piece_at(square)->get_appearance();
-            char piece_type = std::toupper(char(str[0]));
-            if (board->piece_at(square)->side != Piece::side && piece_type == 'Q' || piece_type == 'B')
-                return true;
-        }
-    }
-
-    // if piece was a knight would it see an enemy knight ? if yes piece is attacked
-    std::vector<int> knight_movement_squares = knight_movement(board);
-    for (int square : knight_movement_squares) {
-        if (board->piece_at(square)) {
-            std::string str = board->piece_at(square)->get_appearance();
-            char piece_type = std::toupper(char(str[0]));
-            if (board->piece_at(square)->side != Piece::side && piece_type == 'N')
-                return true;
-        }
-    }
-
-    // if piece was a pawn would it attack an enemy pawn ? if yes piece is attacked
-    int side_multiplier = Piece::side ? -1 : 1;
-    int take_square_one = Piece::position + side_multiplier * 7;
-    int take_square_two = Piece::position + side_multiplier * 9;
-    std::vector<int> pawn_attacked_squares = { take_square_one, take_square_two };
-    for (int square : pawn_attacked_squares) {
-        if (board->piece_at(square)) {
-            std::string str = board->piece_at(square)->get_appearance();
-            char piece_type = std::toupper(char(str[0]));
-            if (board->piece_at(square)->side != Piece::side && piece_type == 'P')
-                return true;
-        }
-    }
-
-    return false;
+    return board->is_square_attacked(Piece::position, !Piece::side);
 }
 
 std::string Piece::get_appearance() {

@@ -886,6 +886,246 @@ void is_move_legal_test() {
 
 }
 
+void castle_test() {
+    std::vector<std::string> starting_fens = {
+        "r2qkbnr/pppb2pp/2n1p3/1B1p1p2/3P1B2/4PN2/PPP2PPP/RN1QK2R",
+        "r3kbnr/pppbqppp/2n1p3/3p4/3P1B2/2PBPN2/PP3PPP/RN1QK2R",
+        "rn1qkbnr/pp2pp1p/2p3p1/3p1b2/3P1B2/2N5/PPPQPPPP/R3KBNR",
+        "rn1qk2r/ppp2ppp/3bpn2/3p1b2/3P4/2PBP1B1/PP3PPP/RN1QK1NR",
+        "r2qkbnr/pp1npppp/2p5/5b2/2pP1B2/2N5/PP1QPPPP/R3KBNR",
+        "3rkbnr/pp2pppp/8/4Nb2/4nB2/8/PP2PPPP/R3KBNR",
+        "2r1kbnr/pp2pppp/8/5b2/4nB2/3N4/PP2PPPP/R3KBNR",
+        "r1b1kb1r/p3q1pp/1pn2n2/8/3P4/5N2/PPP2PPP/RN1QK2R",
+        "r3kb1r/pb3qpp/1p6/3nP3/3P4/2N5/PPP3PP/R2QK2R",
+        "r3kbr1/p6p/1p6/3bP3/3P4/2P2p2/PP1R3P/4K2R",
+        "r3kbnr/pp1n1ppp/2p5/3q1b2/3P1B2/5N2/PPPNB1PP/R2QK2R",
+        "r3kbnr/pp4pp/1np2p2/3q2N1/3P1BB1/8/PPPN2PP/R2Q1RK1",
+        "r3kbnr/pp4pp/1np5/3q2B1/3P2B1/8/PPPN2PP/R2Q1RK1",
+        "r3k2r/1p2b1pp/2p4n/p5B1/3PR1B1/5Q2/PnP3PP/4R1K1",
+        "2r1k2r/1p2b2p/2p4p/p7/3PR3/6Q1/PnP3PP/4R1K1",
+        "rn1qkbnr/pppb1ppp/3pp3/8/3P1B2/4PN2/PPP2PPP/RN1QKB1R",
+        "rn1qkbnr/pppb1ppp/3pp3/8/3P1B2/4PN2/PPP2PPP/RN1QKB1R",
+        "rn1qkbnr/pppb1ppp/3pp3/8/3P1B2/3BP3/PPP2PPP/RN1QK1NR",
+        "rn1qkbnr/pppb1ppp/3pp3/8/3P1B2/2N1P3/PPP2PPP/R2QKBNR",
+        "rn1qkbnr/pppb1ppp/3pp3/8/3P1B2/3QP3/PPP2PPP/RN2KBNR",
+        "r2qkbnr/ppp1pppp/2n5/3p1b2/3P1B2/4P3/PPP2PPP/RN1QKBNR",
+        "rn2kbnr/ppp1pppp/3q4/3p1b2/3P1B2/4P3/PPP2PPP/RN1QKBNR",
+        "r1bqkbnr/ppp1pppp/2n5/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR",
+        "r1b1kbnr/pppqpppp/2n5/3p4/3P1B2/4P3/PPP2PPP/RN1QKBNR",
+        "rnbqk1nr/ppp2ppp/3bp3/3p4/3P1B2/3BP3/PPP2PPP/RN1QK1NR",
+        "rnbqkb1r/ppp2ppp/4pn2/3p4/3P1B2/2P1P3/PP3PPP/RN1QKBNR",
+    };
+
+    std::vector<std::string> moves = {
+        "O-O",
+        "o-o-o",
+        "O-O-O",
+        "o-o",
+        "O-O-O",
+        "O-O-O",
+        "O-O-O",
+        "O-O",
+        "O-O",
+        "O-O",
+        "o-o-o",
+        "o-o-o",
+        "o-o-o",
+        "o-o",
+        "o-o",
+        "O-O",
+        "O-O-O",
+        "O-O",
+        "O-O-O",
+        "O-O-O",
+        "o-o-o",
+        "o-o-o",
+        "o-o-o",
+        "o-o-o",
+        "o-o",
+        "o-o",
+    };
+
+    std::vector<bool> sides = {
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+    };
+
+    std::vector<std::string> fens_after = {
+        "r2qkbnr/pppb2pp/2n1p3/1B1p1p2/3P1B2/4PN2/PPP2PPP/RN1Q1RK1",
+        "2kr1bnr/pppbqppp/2n1p3/3p4/3P1B2/2PBPN2/PP3PPP/RN1QK2R",
+        "rn1qkbnr/pp2pp1p/2p3p1/3p1b2/3P1B2/2N5/PPPQPPPP/2KR1BNR",
+        "rn1q1rk1/ppp2ppp/3bpn2/3p1b2/3P4/2PBP1B1/PP3PPP/RN1QK1NR",
+        "r2qkbnr/pp1npppp/2p5/5b2/2pP1B2/2N5/PP1QPPPP/2KR1BNR",
+        "Illegal move, castle square is attacked",
+        "Illegal move, castle square is attacked",
+        "Illegal move, castle square is attacked",
+        "Illegal move, castle square is attacked",
+        "Illegal move, castle square is attacked",
+        "2kr1bnr/pp1n1ppp/2p5/3q1b2/3P1B2/5N2/PPPNB1PP/R2QK2R",
+        "Illegal move, castle square is attacked",
+        "Illegal move, castle square is attacked",
+        "Illegal move, castle square is attacked",
+        "Illegal move, castle square is attacked",
+        "Illegal move, can't castle with pieces in the way",
+        "Illegal move, can't castle with pieces in the way",
+        "Illegal move, can't castle with pieces in the way",
+        "Illegal move, can't castle with pieces in the way",
+        "Illegal move, can't castle with pieces in the way",
+        "Illegal move, can't castle with pieces in the way",
+        "Illegal move, can't castle with pieces in the way",
+        "Illegal move, can't castle with pieces in the way",
+        "Illegal move, can't castle with pieces in the way",
+        "Illegal move, can't castle with pieces in the way",
+        "Illegal move, can't castle with pieces in the way",
+    };
+
+    int correct_counter = 0;
+    for (int i = 0; i < starting_fens.size(); i++) {
+        Board* b = new Board(starting_fens[i]);
+        b->set_castle_rights(true, true, true, true);
+        std::string final_fen;
+        try {
+            b->move(moves[i], sides[i]);
+            final_fen = b->get_fen();
+        }
+        catch (const std::invalid_argument& e) {
+            final_fen = e.what();
+        }
+
+        if (final_fen == fens_after[i]) {
+            correct_counter++;
+        }
+        else {
+            cout << "Castle test " << i + 1 << " failed." << endl;
+        }
+
+        delete b;
+
+    }
+
+    cout << "Castle test" << endl;
+    cout << correct_counter << "/" << starting_fens.size() << endl;
+    cout << separator << endl;
+}
+
+void castle_rights_test() {
+
+    int correct_counter = 0;
+    int n_tests = 4;
+    
+    std::string fen1 = "r3k2r/8/8/8/8/8/8/R3K2R";
+
+    Board* b = new Board(fen1);
+    b->set_castle_rights(true, true, true, true);
+    b->move("Rh1-h8", true);
+    try {
+        b->move("O-O", true);
+    }
+    catch (const std::invalid_argument& e) {
+        std::string res = e.what();
+        if (res == "Illegal move, the player does not have the right to castle") {
+            correct_counter++;
+        }
+    }
+
+    try {
+        b->move("o-o", false);
+    }
+    catch (const std::invalid_argument& e) {
+        std::string res = e.what();
+        if (res == "Illegal move, the player does not have the right to castle") {
+            correct_counter++;
+        }
+    }
+
+    try {
+        b->move("O-O-O", true);
+    }
+    catch (const std::invalid_argument& e) {
+        correct_counter--;
+    }
+
+    try {
+        b->move("Rh8-h7", true);
+        b->move("Rd1-f1", true);
+        b->move("o-o-o", false);
+    }
+    catch (const std::invalid_argument& e) {
+        correct_counter--;
+    }
+    delete b;
+
+    b = new Board(fen1);
+    b->set_castle_rights(true, true, true, true);
+    b->move("Ra1-a8", true);
+
+    try {
+        b->move("O-O-O", true);
+    }
+    catch (const std::invalid_argument& e) {
+        std::string res = e.what();
+        if (res == "Illegal move, the player does not have the right to castle") {
+            correct_counter++;
+        }
+    }
+
+    try {
+        b->move("o-o-o", false);
+    }
+    catch (const std::invalid_argument& e) {
+        std::string res = e.what();
+        if (res == "Illegal move, the player does not have the right to castle") {
+            correct_counter++;
+        }
+    }
+
+    try {
+        b->move("O-O", true);
+    }
+    catch (const std::invalid_argument& e) {
+        correct_counter--;
+    }
+
+    try {
+        b->move("Ra8-a7", true);
+        b->move("Rf1-d1", true);
+        b->move("o-o", false);
+    }
+    catch (const std::invalid_argument& e) {
+        correct_counter--;
+    }
+
+    delete b;
+    
+    cout << "Castle rights test" << endl;
+    cout << correct_counter << "/" << n_tests << endl;
+    cout << separator << endl;
+}
+
 int main() {
     SetConsoleOutputCP(65001);
 
@@ -928,6 +1168,10 @@ int main() {
     is_attacked_test();
 
     is_move_legal_test();
+
+    castle_test();
+
+    castle_rights_test();
 
     return 0;
 }

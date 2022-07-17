@@ -12,6 +12,6 @@ Bishop::Bishop(bool side, int position) {
 }
 
 std::vector<int> Bishop::pseudo_legal_moves(Board* board) {
-    std::vector<int> moves = Piece::piece_movement(board, false, true, false);
+    std::vector<int> moves = Piece::piece_movement(board, Piece::position, Piece::side, false, true, false);
     return moves;
 }

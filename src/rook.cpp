@@ -12,6 +12,6 @@ Rook::Rook(bool side, int position) {
 }
 
 std::vector<int> Rook::pseudo_legal_moves(Board* board) {
-    std::vector<int> moves = Piece::piece_movement(board, false, false, true);
+    std::vector<int> moves = Piece::piece_movement(board, Piece::position, Piece::side, false, false, true);
     return moves;
 }

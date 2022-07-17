@@ -5,12 +5,6 @@
 class Board;    // forward declaration of Board to avoid circular dependencies
 
 class Piece {
-protected:
-    // generic movement methods
-    std::vector<int> piece_movement(Board*, bool, bool, bool);
-    std::vector<int> knight_movement(Board*);
-    std::vector<int> pawn_movement(Board*);
-
 public:
     // state
     int position;
@@ -18,6 +12,11 @@ public:
     std::string appearance;
 
     // methods
+    // generic movement methods
+    std::vector<int> static piece_movement(Board*, int, bool, bool, bool, bool);
+    std::vector<int> static knight_movement(Board*, int, bool);
+    std::vector<int> static pawn_movement(Board*, int, bool);
+
     bool is_attacked(Board*);
     virtual std::vector<int> pseudo_legal_moves(Board*) = 0;  // method that returns a list of indeces of squares on which the piece can move
 
