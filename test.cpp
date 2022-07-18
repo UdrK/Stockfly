@@ -1024,7 +1024,6 @@ void castle_test() {
         }
 
         delete b;
-
     }
 
     cout << "Castle test" << endl;
@@ -1126,6 +1125,71 @@ void castle_rights_test() {
     cout << separator << endl;
 }
 
+void mate_test() {
+    std::vector<std::string> fens = {
+        "r1bqkbnr/p1pp1ppp/1pn5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR",
+        "7k/7r/2Np3Q/8/3PR3/2P5/1P2K1P1/1q6",
+        "7k/7r/2Np3Q/8/3PR3/2P5/1P2K1P1/1q6",
+        "4R3/5kr1/2Np3Q/8/3P4/2P5/1P2K1P1/1q6",
+        "6r1/pp6/3p1k1K/1P1Pp3/P3P3/5pq1/N7/5B2",
+        "6r1/pp6/3p1k1K/1P1Pp3/P3P3/5pq1/N7/5B2",
+        "6r1/pp6/3p1k1K/1P1Pp3/P3P3/5pq1/N7/5B2",
+        "rk5r/6p1/pBQ2n2/4p1p1/4P3/8/PP3PPP/6K1",
+        "rn1qk2r/pbpp1pQp/1p3n2/4p3/4P3/bP6/P1PP1PPP/RN2KBNR",
+    };
+
+    std::vector<std::string> moves = {
+        "Qf3-f7",
+        "Re4-e8",
+        "Qh6-f8",
+        "Qh6-e6",
+        "Rg8-h8",
+        "Qg3-g6",
+        "Qg3-h4",
+        "Qc6-c7",
+        "Qg7-h8",
+    };
+
+    std::vector<bool> sides = {
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+    };
+
+    int correct_counter = 0;
+    for (int i = 0; i < fens.size(); i++) {
+        Board* board = new Board(fens[i]);
+        board->set_castle_rights(true, true, true, true);
+        try {
+            board->move(moves[i], sides[i]);
+            Piece* enemy_king = board->get_king(!sides[i]);
+            if (enemy_king->is_attacked(board) && board->is_mate(sides[i])) {
+                correct_counter++;
+            }
+            else if (fens[i] == "rn1qk2r/pbpp1pQp/1p3n2/4p3/4P3/bP6/P1PP1PPP/RN2KBNR") {
+                correct_counter++;
+            } else {
+                cout << "Castle test " << i + 1 << " failed." << endl;
+            }
+        }
+        catch (const std::invalid_argument& e) {
+            cout << "Mate test " << i + 1 << " failed." << endl;
+        }
+        delete board;
+    }
+
+    cout << "Mate test" << endl;
+    cout << correct_counter << "/" << fens.size() << endl;
+    cout << separator << endl;
+}
+
+
 int main() {
     SetConsoleOutputCP(65001);
 
@@ -1172,6 +1236,8 @@ int main() {
     castle_test();
 
     castle_rights_test();
+
+    mate_test();
 
     return 0;
 }

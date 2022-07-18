@@ -19,11 +19,14 @@
 void game_loop(Board* board) {
 	
 	int i = 0;
-	bool king_captured = false;
-	while (!king_captured) {
+	bool mate = false;
+	bool side_turn = (i % 2 == 0);
+
+	while (!mate) {
 
 		bool is_input_move_legal = false;
 		bool tried_illegal_move = false;
+		side_turn = (i % 2 == 0);
 
 		while (!is_input_move_legal) {
 			system("cls");
@@ -33,7 +36,7 @@ void game_loop(Board* board) {
 			if (tried_illegal_move) {
 				std::cout << "Illegal move, try again." << std::endl;
 			}
-			if ((i % 2 == 0)) {
+			if (side_turn) {
 				std::cout << "White's turn, make a move > " << std::endl;
 			}
 			else {
@@ -42,18 +45,14 @@ void game_loop(Board* board) {
 			std::cin >> move;
 
 			try {
-				board->move(move, (i % 2 == 0));
+				board->move(move, side_turn);
 				is_input_move_legal = true;
 				i += 1;
 
-				int destination_square_index = coordinates_to_board_index(move.substr(3, 4));
-				Piece* piece = board->piece_at(destination_square_index);
-
-				std::string str = piece->get_appearance();
-				char piece_type = std::toupper(char(str[0]));
-
-				if (piece_type == 'K')
-					king_captured = true;
+				Piece* enemy_king = board->get_king(!side_turn);
+				if (enemy_king->is_attacked(board) && board->is_mate(side_turn)) {
+					mate = true;
+				}
 			}
 			catch (const std::invalid_argument& e) {
 				std::cout << e.what() << std::endl;
@@ -62,7 +61,9 @@ void game_loop(Board* board) {
 		}
 	}
 
-	std::cout << std::endl << (i % 2 == 0) ? "White" : "Black" " won!";
+	std::string winner = side_turn ? "White" : "Black";
+
+	std::cout << std::endl << winner << " won!";
 }
 
 /*

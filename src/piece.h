@@ -21,5 +21,5 @@ public:
     virtual std::vector<int> pseudo_legal_moves(Board*) = 0;  // method that returns a list of indeces of squares on which the piece can move
 
     // Chess I/O
-    std::string get_appearance();
+    std::string get_appearance(bool);
 };
