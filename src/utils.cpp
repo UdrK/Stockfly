@@ -21,9 +21,10 @@ std::map<std::string, std::string> unicode_pieces = {
     {"p", "\xE2\x99\x9F"},
 };
 
+// given chess style coordinates e.g. e4, returns board representation coordinate (aka index) e.g. e4 -> 35
 int coordinates_to_board_index(std::string coordinates) {
-    int file_number = int(coordinates[0]) - 97;  // column: a->0, b->1, ..., h->7 
-    int rank_number = 8 - (int(coordinates[1]) - 48);  // row: these are reversed in my representation, also should start from 0 instead of 1
+    int file_number = int(coordinates[0]) - 97;  // file: a->0, b->1, ..., h->7 
+    int rank_number = 8 - (int(coordinates[1]) - 48);  // rank
     int index = 8 * rank_number + file_number;
 
     if (file_number < 0 || file_number > 7 || rank_number < 0 || rank_number > 7) {

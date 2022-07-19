@@ -16,13 +16,15 @@
 #include "src/knight.h"
 #include "src/pawn.h"
 
-void game_loop(Board* board) {
+// 0 white's turn, 1 black's turn
+void game_loop(Board* board, int turn) {
 	
-	int i = 0;
+	int i = turn;
 	bool mate = false;
+	bool draw = false;
 	bool side_turn = (i % 2 == 0);
 
-	while (!mate) {
+	while (!mate && !draw) {
 
 		bool is_input_move_legal = false;
 		bool tried_illegal_move = false;
@@ -49,9 +51,30 @@ void game_loop(Board* board) {
 				is_input_move_legal = true;
 				i += 1;
 
-				Piece* enemy_king = board->get_king(!side_turn);
-				if (enemy_king->is_attacked(board) && board->is_mate(side_turn)) {
-					mate = true;
+				if (board->is_threefold_repetition()) {
+					draw = true;
+					system("cls");
+					std::cout << board->print_board(false);
+				}
+				else {
+					Piece* enemy_king = board->get_king(!side_turn);
+					if (enemy_king->is_attacked(board)) {
+						if (board->is_mate(side_turn)) {
+							mate = true;
+							system("cls");
+							std::cout << board->print_board(false);
+						}
+					}
+					else if (board->is_stalemate(side_turn)) {
+						draw = true;
+						system("cls");
+						std::cout << board->print_board(false);
+					}
+					else if (board->is_draw_by_insufficient_material()) {
+						draw = true;
+						system("cls");
+						std::cout << board->print_board(false);
+					}
 				}
 			}
 			catch (const std::invalid_argument& e) {
@@ -63,15 +86,20 @@ void game_loop(Board* board) {
 
 	std::string winner = side_turn ? "White" : "Black";
 
-	std::cout << std::endl << winner << " won!";
+	if (mate)
+		std::cout << "Checkmate!" << std::endl << winner << " won!";
+	else
+		std::cout << "Draw!";
 }
 
-/*
+
 int main() {
 
-	Board* board = new Board("");
-	game_loop(board);
+	Board* board = new Board("r1k4r/1p4p1/pBbR1n2/4p1p1/2Q1P3/8/PP3PPP/6K1");
+	board->set_castle_rights(false, false, false, false);
+	game_loop(board, 0);
+
+	while (true) {}
 
 	return 0;
 }
-*/

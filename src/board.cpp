@@ -10,10 +10,15 @@
 #include "utils.h"
 
 Board::Board(std::string fen) {
-    Board::board = new Piece * [64];
+
+    // empty board and pieces lists, these will be set_from_fen
+    Board::board = new Piece * [Board::board_size];
     Board::white_pieces = std::vector<Piece*>();
     Board::black_pieces = std::vector<Piece*>();
+
+    // list of position reached (updated at every move) in fen format
     Board::positions_fens = std::vector<std::string>();
+
     if (!fen.empty())
         set_from_fen(fen);
     else
@@ -24,12 +29,8 @@ Board::Board(std::string fen) {
 
 // private utility methods  --------
 void Board::fen_to_board(std::string fen) {
+
     int index = 0;
-
-    for (int i = 0; i < 64; i++) {
-        Board::board[i] = NULL;
-    }
-
     for (auto c : fen) {
         if (c == ' ') break;
         if (c != '/') {
@@ -127,7 +128,7 @@ std::string Board::board_to_fen() {
     std::string fen = "";
     int empty_counter = 0;
     int rank_counter = 0;
-    for (int i = 0; i < Board::board_size; i += 1) {
+    for (int i = 0; i < Board::board_size; i++) {
         std::string c = "-";
         if (Board::board[i] != NULL)
             c = Board::board[i]->get_appearance(false);
@@ -151,6 +152,23 @@ std::string Board::board_to_fen() {
     }
     fen.pop_back();
     return fen;
+}
+
+// removes side's piece in position from list of pieces (to be called when a piece is taken)
+void Board::update_pieces_list(int position, bool side) {
+    std::vector<Piece*>* pieces = side ? &(Board::white_pieces) : &(Board::black_pieces);
+    Piece* to_be_removed;
+
+    int i = 0;
+    for (Piece* p : *pieces) {
+        if (p->position == position) {
+            to_be_removed = p;
+            break;
+        }
+        i++;
+    }
+    pieces->erase(pieces->begin() + i);
+    delete to_be_removed;
 }
 
 // setters --------
@@ -182,50 +200,6 @@ void Board::set_castle_rights(bool white_king_side, bool white_queen_side, bool 
     Board::white_queen_side_castle = white_queen_side;
     Board::black_king_side_castle = black_king_side;
     Board::black_queen_side_castle = black_queen_side;
-}
-
-void Board::move_piece_to(int position, Piece* piece) {
-    
-    // remove piece from original square
-    int original_piece_position = piece->position;
-    Board::board[original_piece_position] = NULL;
-
-    // if there is already a piece in -position- then set its position to -1 (piece has been taken)
-    if (Board::board[position])
-        Board::board[position]->position = -1;
-
-    // piece goes to position
-    Board::board[position] = piece;
-
-    // piece has moved, updating pieces internal position
-    piece->position = position;
-
-    std::string piece_type = piece->get_appearance(true);
-
-    // dealing with en passant ------------------
-    // if en passant is possible
-    if (Board::en_passant_file != -1) {
-
-        // useful values
-        int side_multiplier = piece->side ? -1 : 1;
-        int file = original_piece_position % 8;
-        int rank = ((original_piece_position - file) / 8);
-        int file_distance = file - Board::en_passant_file;
-
-        // if piece is pawn and adjacent to en passant file
-        if (piece_type == "P" && abs(file_distance) == 1) {
-            // if pawn tries to take en passant
-            if (position == original_piece_position + side_multiplier * (8 - (side_multiplier * file_distance))) {
-                // pawn is taking en passant, therefore we remove the enemy pawn
-                Board::board[position - side_multiplier * 8] = NULL;
-            }
-        }
-    } 
-    // if pawn moves 2 forward en passant is possible
-    if (piece_type == "P" && abs(position - original_piece_position) > 15) {
-        int file = original_piece_position % 8;
-        Board::en_passant_file = file;
-    }
 }
 
 // getters --------
@@ -282,12 +256,25 @@ char* Board::print_board(bool unicode) {
     return char_arr_board;
 }
 
+// Chess Logic --------------
+
 // is square_index attacked by side player
 bool Board::is_square_attacked(int square_index, bool side) {
 
     // side is used in the code to verify if !side attacks the square, but the method is called to verify is side attacks the square
     // maybe????
     side = !side;
+
+    // if piace was a king, would it see an enemy king or queen? if yes piece is attacked
+    std::vector<int> king_movement_squares = Piece::piece_movement(this, square_index, side, true, true, true);
+    for (int square : king_movement_squares) {
+        if (Board::piece_at(square)) {
+            std::string piece_type = Board::piece_at(square)->get_appearance(true);
+            if (Board::piece_at(square)->side != side && piece_type == "Q" || piece_type == "K")
+                return true;
+        }
+    }
+
     // if piece was a queen/rook would it see an enemy queen/rook ? if yes piece is attacked
     std::vector<int> rook_movement_squares = Piece::piece_movement(this, square_index, side, false, false, true);
     for (int square : rook_movement_squares) {
@@ -324,7 +311,7 @@ bool Board::is_square_attacked(int square_index, bool side) {
     int take_square_two = square_index + side_multiplier * 9;
     std::vector<int> pawn_attacked_squares = { take_square_one, take_square_two };
     for (int square : pawn_attacked_squares) {
-        if (Board::piece_at(square)) {
+        if (Board::piece_at(square) && square > 0 && square < 64) {
             std::string piece_type = Board::piece_at(square)->get_appearance(true);
             if (Board::piece_at(square)->side != side && piece_type == "P")
                 return true;
@@ -405,13 +392,13 @@ bool Board::is_draw_by_insufficient_material() {
     if (Board::white_pieces.size() < 3 && Board::black_pieces.size() < 3) {
         for (Piece* p : Board::white_pieces) {
             std::string piece_type = p->get_appearance(true);
-            if (piece_type == "R" || piece_type == "Q") {
+            if (piece_type == "R" || piece_type == "Q" || piece_type == "P") {
                 return false;
             }
         }
         for (Piece* p : Board::black_pieces) {
             std::string piece_type = p->get_appearance(true);
-            if (piece_type == "R" || piece_type == "Q") {
+            if (piece_type == "R" || piece_type == "Q" || piece_type == "P") {
                 return false;
             }
         }
@@ -423,24 +410,26 @@ bool Board::is_draw_by_insufficient_material() {
 // side just made a move, is it stalemate?
 bool Board::is_stalemate(bool side) {
     Piece* king;
-    std::vector<Piece*> pieces;
+    std::vector<Piece*>* pieces;
     if (side) {
         king = Board::black_king;
-        pieces = Board::black_pieces;
+        pieces = &(Board::black_pieces);
     }
     else {
         king = Board::white_king;
-        pieces = Board::white_pieces;
+        pieces = &(Board::white_pieces);
     }
 
     // if enemy king not in check
     if (!king->is_attacked(this)) {
         // if legal moves, not stalemate, else stalemate
-        for (Piece* piece : pieces) {
+        for (Piece* piece : *pieces) {
             std::vector<int> moves = piece->pseudo_legal_moves(this);
-            for (int move : moves) {
-                if (is_move_legal(piece, move)) {
-                    return false;
+            if (moves.size()>0) {
+                for (int move : moves) {
+                    if (is_move_legal(piece, move)) {
+                        return false;
+                    }
                 }
             }
         }
@@ -455,6 +444,53 @@ bool Board::is_threefold_repetition() {
             return true;
     }
     return false;
+}
+
+void Board::move_piece_to(int position, Piece* piece) {
+
+    // remove piece from original square
+    int original_piece_position = piece->position;
+    Board::board[original_piece_position] = NULL;
+
+    // if there is already a piece in position, update position (serves no purpose for now)
+    // piece deletion reserved to update_piece_list as move_piece_to is used by is_move_legal
+    // and has to be reversible
+    if (Board::board[position]) {
+        Board::board[position]->position = -1;
+    }
+        
+    // piece goes to position
+    Board::board[position] = piece;
+
+    // piece has moved, updating pieces internal position
+    piece->position = position;
+
+    std::string piece_type = piece->get_appearance(true);
+
+    // dealing with en passant ------------------
+    // if en passant is possible
+    if (Board::en_passant_file != -1) {
+
+        // useful values
+        int side_multiplier = piece->side ? -1 : 1;
+        int file = original_piece_position % 8;
+        int rank = ((original_piece_position - file) / 8);
+        int file_distance = file - Board::en_passant_file;
+
+        // if piece is pawn and adjacent to en passant file
+        if (piece_type == "P" && abs(file_distance) == 1) {
+            // if pawn tries to take en passant
+            if (position == original_piece_position + side_multiplier * (8 - (side_multiplier * file_distance))) {
+                // pawn is taking en passant, therefore we remove the enemy pawn
+                Board::board[position - side_multiplier * 8] = NULL;
+            }
+        }
+    }
+    // if pawn moves 2 forward en passant is possible
+    if (piece_type == "P" && abs(position - original_piece_position) > 15) {
+        int file = original_piece_position % 8;
+        Board::en_passant_file = file;
+    }
 }
 
 void Board::castle(std::string move, bool side_turn) {
@@ -566,6 +602,49 @@ void Board::castle(std::string move, bool side_turn) {
     }
 }
 
+void Board::promotion(std::string move, bool side) {
+    
+    int destination_square_index = coordinates_to_board_index(move.substr(4, 2));
+
+    Piece* promote_to;
+    if (move.size() == 8) {
+        if (move.substr(7, 1) == "R") {
+            promote_to = new Rook(side, destination_square_index);
+        }
+        else if (move.substr(7, 1) == "B") {
+            promote_to = new Bishop(side, destination_square_index);
+        }
+        else if (move.substr(7, 1) == "N") {
+            promote_to = new Knight(side, destination_square_index);
+        }
+        else {
+            promote_to = new Queen(side, destination_square_index);
+        }
+    }
+    else {
+        promote_to = new Queen(side, destination_square_index);
+    }
+
+    // promotion is called after the pawn is put in its destination square
+    // update piece list by removing pawn and inserting new piece, updating board subsequently
+    std::vector<Piece*>* pieces = side ? &(Board::white_pieces) : &(Board::black_pieces);
+    int i = 0;
+    for (Piece* p : *pieces) {
+        if (p->position == destination_square_index) {
+            break;
+        }
+        i++;
+    }
+    // updating list: removing pawn, adding piece
+    pieces->erase(pieces->begin() + i);
+    pieces->push_back(promote_to);
+
+    // deleting pawn
+    delete Board::board[destination_square_index];
+    // putting pience on the board
+    Board::board[destination_square_index] = promote_to;
+}
+
 // Easy Move Notation EMN
 // basically normal algebraic notation but indicating origin square and piece to make it easier to parse
 // also doesnt distinguish between takes and just move
@@ -583,7 +662,7 @@ void Board::move(std::string move, bool side_turn) {
         }
         else {
             int origin_square_index = coordinates_to_board_index(move.substr(1, 2));
-            int destination_square_index = coordinates_to_board_index(move.substr(4, 5));
+            int destination_square_index = coordinates_to_board_index(move.substr(4, 2));
 
             Piece* piece = Board::board[origin_square_index];
             if (piece == NULL) {
@@ -601,7 +680,20 @@ void Board::move(std::string move, bool side_turn) {
                 }
                 else {
                     if (is_move_legal(piece_at(origin_square_index), destination_square_index)) {
+
+                        // if move takes piece, update pieces list (remove piece from list)
+                        Piece* taken_piece = Board::board[destination_square_index];
+                        std::string taken_piece_type; 
+                        if (taken_piece) {
+                            taken_piece_type = taken_piece->get_appearance(true);
+                            Board::update_pieces_list(destination_square_index, !side_turn);
+                        }
                         Board::move_piece_to(destination_square_index, piece);
+
+                        // if move is promotion, promote, update of pieces list is made in promotion
+                        if (piece_type == "P" && ((side_turn && destination_square_index <= 7) || (!side_turn && destination_square_index >= 56))) {
+                            Board::promotion(move, side_turn);
+                        }
 
                         // updating castling rights --------
                         // if king moves, remove all castling rights
@@ -626,21 +718,20 @@ void Board::move(std::string move, bool side_turn) {
                         else if (piece_type == "R" && !side_turn && Board::black_queen_side_castle && origin_square_index == 0) {
                             Board::black_queen_side_castle = false;
                         }
-                        // if rook is taken, remove corresponding castling right
-                        Piece* taken_piece = Board::board[destination_square_index];
-                        if (taken_piece) {
-                            std::string taken_piece_type = taken_piece->get_appearance(true);
 
-                            if (taken_piece_type == "R" && side_turn && Board::black_king_side_castle && destination_square_index == 7) {
+                        // if rook is taken, remove corresponding castling right
+                        if (taken_piece_type == "R") {
+
+                            if (side_turn && Board::black_king_side_castle && destination_square_index == 7) {
                                 Board::black_king_side_castle = false;
                             }
-                            else if (taken_piece_type == "R" && side_turn && Board::black_queen_side_castle && destination_square_index == 0) {
+                            else if (side_turn && Board::black_queen_side_castle && destination_square_index == 0) {
                                 Board::black_queen_side_castle = false;
                             }
-                            else if (taken_piece_type == "R" && !side_turn && Board::white_king_side_castle && destination_square_index == 63) {
+                            else if (!side_turn && Board::white_king_side_castle && destination_square_index == 63) {
                                 Board::white_king_side_castle = false;
                             }
-                            else if (taken_piece_type == "R" && !side_turn && Board::white_queen_side_castle && destination_square_index == 56) {
+                            else if (!side_turn && Board::white_queen_side_castle && destination_square_index == 56) {
                                 Board::white_queen_side_castle = false;
                             }
                         }

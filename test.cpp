@@ -1189,6 +1189,257 @@ void mate_test() {
     cout << separator << endl;
 }
 
+void insufficient_material_draw_test() {
+    std::vector<std::string> fens = {
+        "8/5k2/8/8/2P5/2K5/8/8",
+        "8/5k2/8/8/1PN5/1K6/8/8",
+        "8/5k2/8/8/2R5/2K5/8/8",
+        "8/5k2/8/8/3Q4/2K5/8/8",
+        "8/5k2/5r2/8/5R2/4PK2/8/8",
+        "8/5k2/5R2/8/8/5K2/8/8",
+        "8/5k2/4R3/8/6N1/5K2/8/8",
+        "8/5k2/3n4/1R6/6N1/5K2/8/8",
+    };
+
+    std::vector<std::string> moves = {
+        "Pc4-c5",   // not drawn
+        "Pb4-b5",   // not drawn
+        "Rc4-c5",   // not drawn
+        "Qd4-c5",   // not drawn
+        "Rf4-f6",   // not drawn
+        "Kf7-f6",
+        "Kf7-e6",
+        "Nd6-b5"
+    };
+
+    std::vector<bool> sides = {
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+    };
+
+    int correct_counter = 0;
+    for (int i = 0; i < fens.size(); i++) {
+        Board* board = new Board(fens[i]);
+        board->set_castle_rights(false, false, false, false);
+        try {
+            board->move(moves[i], sides[i]);
+            if (i < 5) {
+                if (!board->is_draw_by_insufficient_material()) {
+                    correct_counter++;
+                }
+                else {
+                    cout << "Insufficient Material Draw test " << i + 1 << " failed." << endl;
+                }
+            }
+            else {
+                if (board->is_draw_by_insufficient_material()) {
+                    correct_counter++;
+                }
+                else {
+                    cout << "Insufficient Material Draw test " << i + 1 << " failed." << endl;
+                }
+            }
+        }
+        catch (const std::invalid_argument& e) {
+            cout << "Insufficient Material Draw test " << i + 1 << " failed." << endl;
+        }
+        delete board;
+    }
+
+    cout << "Insufficient Material Draw test" << endl;
+    cout << correct_counter << "/" << fens.size() << endl;
+    cout << separator << endl;
+}
+
+void stalemate_test() {
+    std::vector<std::string> fens = {
+        "k7/8/8/1RK1N3/8/8/8/8",
+        "k7/8/8/1RK1N3/8/p7/P7/8",
+        "2k5/8/3K4/1Q6/8/8/8/8",
+        "6bk/7p/7P/8/3R4/6K1/8/8",
+        "6bk/7p/7P/8/3R4/6K1/8/8",
+        "k7/2K5/8/1R2N3/8/8/8/8",
+    };
+
+    std::vector<std::string> moves = {
+        "Ne5-c6",   // stalemate
+        "Ne5-c6",   // stalemate
+        "Qb5-b6",   // stalemate
+        "Rd4-d8",   // stalemate
+        "Rd4-g4",   
+        "Rb5-a5",
+    };
+
+    std::vector<bool> sides = {
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+    };
+
+    int correct_counter = 0;
+    for (int i = 0; i < fens.size(); i++) {
+        Board* board = new Board(fens[i]);
+        board->set_castle_rights(false, false, false, false);
+        try {
+            board->move(moves[i], sides[i]);
+            if (i < 4) {
+                if (board->is_stalemate(sides[i])) {
+                    correct_counter++;
+                }
+                else {
+                    cout << "Stalemate test " << i + 1 << " failed." << endl;
+                }
+            }
+            else {
+                if (!board->is_stalemate(!sides[i])) {
+                    correct_counter++;
+                }
+                else {
+                    cout << "Stalemate test " << i + 1 << " failed." << endl;
+                }
+            }
+        }
+        catch (const std::invalid_argument& e) {
+            cout << "Stalemate test " << i + 1 << " failed." << endl;
+        }
+        delete board;
+    }
+
+    cout << "Stalemate test" << endl;
+    cout << correct_counter << "/" << fens.size() << endl;
+    cout << separator << endl;
+}
+
+void repetition_draw_test() {
+    std::string fen = "2r3k1/4ppp1/7p/8/8/3Q3P/5PP1/6K1";
+
+    std::vector<std::string> moves = {
+        "Qd3-e4",
+        "Rc8-e8",
+        "Qe4-d3",
+        "Re8-c8",
+        "Qd3-e4",
+        "Rc8-e8",
+        "Qe4-d3",
+        "Re8-c8",
+    };
+
+    Board* board = new Board(fen);
+    board->set_castle_rights(false, false, false, false);
+    int i = 0;
+    int correct_counter = 0;
+    for (std::string move : moves) {
+        board->move(move, (i % 2 == 0));
+        i++;
+        if (board->is_threefold_repetition()) {
+            correct_counter++;
+        }
+    }
+
+    cout << "Threefold Repetition Draw test" << endl;
+    cout << correct_counter << "/" << 1 << endl;
+    cout << separator << endl;
+}
+
+void promotion_test() {
+    
+    std::vector<std::string> fens = {
+        "8/1P2k3/2K5/8/8/8/8/8",
+        "8/1P2k3/2K5/8/8/8/8/8",
+        "8/1P2k3/2K5/8/8/8/8/8",
+        "8/1P2k3/2K5/8/8/8/8/8",
+        "8/1P2k3/2K5/8/8/8/8/8",
+        "8/8/8/4N3/8/2K5/5kp1/8",
+        "8/8/8/4N3/8/2K5/5kp1/8",
+        "8/8/8/4N3/8/2K5/5kp1/8",
+        "8/8/8/4N3/8/2K5/5kp1/8",
+        "8/8/8/4N3/8/2K5/5kp1/8",
+        "8/1KP3rk/8/8/8/8/8/8",
+    };
+
+    std::vector<std::string> moves = {
+        "Pb7-b8",
+        "Pb7-b8-Q",
+        "Pb7-b8-R",
+        "Pb7-b8-B",
+        "Pb7-b8-N",
+        "Pg2-g1",
+        "Pg2-g1-Q",
+        "Pg2-g1-R",
+        "Pg2-g1-B",
+        "Pg2-g1-N",
+        "Pc7-c8-Q"
+    };
+
+    std::vector<bool> sides = {
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+    };
+
+    std::vector<std::string> fens_after = {
+        "1Q6/4k3/2K5/8/8/8/8/8",
+        "1Q6/4k3/2K5/8/8/8/8/8",
+        "1R6/4k3/2K5/8/8/8/8/8",
+        "1B6/4k3/2K5/8/8/8/8/8",
+        "1N6/4k3/2K5/8/8/8/8/8",
+        "8/8/8/4N3/8/2K5/5k2/6q1",
+        "8/8/8/4N3/8/2K5/5k2/6q1",
+        "8/8/8/4N3/8/2K5/5k2/6r1",
+        "8/8/8/4N3/8/2K5/5k2/6b1",
+        "8/8/8/4N3/8/2K5/5k2/6n1",
+        "Illegal",
+    };
+
+    int correct_counter = 0;
+    for (int i = 0; i < fens.size(); i++) {
+        Board* board = new Board(fens[i]);
+        board->set_castle_rights(false, false, false, false);
+        try {
+            board->move(moves[i], sides[i]);
+            if (i < 10) {
+                if (board->get_fen() == fens_after[i]) {
+                    correct_counter++;
+                }
+                else {
+                    cout << "Promotion test " << i + 1 << " failed." << endl;
+                }
+            }
+        }
+        catch (const std::invalid_argument& e) {
+            if (i >= 10) {
+                correct_counter++;
+            }
+            else {
+                cout << "Promotion test " << i + 1 << " failed." << endl;
+            }
+            
+        }
+        delete board;
+    }
+
+    cout << "Promotion test" << endl;
+    cout << correct_counter << "/" << fens.size() << endl;
+    cout << separator << endl;
+}
+
 
 int main() {
     SetConsoleOutputCP(65001);
@@ -1239,5 +1490,14 @@ int main() {
 
     mate_test();
 
+    insufficient_material_draw_test();
+
+    stalemate_test();
+
+    repetition_draw_test();
+
+    promotion_test();
+
     return 0;
 }
+
