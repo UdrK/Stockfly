@@ -216,6 +216,13 @@ King* Board::get_king(bool side) {
     }
 }
 
+std::vector<Piece*> Board::get_pieces(bool side) {
+    if (side)
+        return Board::white_pieces;
+    else
+        return Board::black_pieces;
+}
+
 Piece* Board::piece_at(int position) {
     return Board::board[position];
 }

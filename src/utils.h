@@ -8,4 +8,4 @@
 extern std::map<std::string, std::string> unicode_pieces;
 
 int coordinates_to_board_index(std::string);
-
+std::string board_index_to_coordinates(int);

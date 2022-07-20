@@ -33,3 +33,14 @@ int coordinates_to_board_index(std::string coordinates) {
 
     return index;
 }
+
+std::string board_index_to_coordinates(int index) {
+    int aux = (index / 8);
+    int rank = 8 - aux;
+    int file = (index % 8);
+
+    std::string file_letter = std::string(1, char(97 + file));
+    std::string coordinates = file_letter + std::to_string(rank);
+
+    return coordinates;
+}

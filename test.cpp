@@ -95,6 +95,26 @@ void fen_test(bool print) {
     cout << separator << endl;
 }
 
+void board_index_to_coordinates_test() {
+    std::vector<int> indexes = { 0, 63, 35, 28, 16, 4, 7, 43 };
+    std::vector<string> expected_coordinates = { "a8", "h1", "d4", "e5", "a6", "e8", "h8", "d3"};
+
+    int correct_counter = 0;
+    for (int i = 0; i < indexes.size(); i++) {
+        if (board_index_to_coordinates(indexes[i]) == expected_coordinates[i]) {
+            correct_counter++;
+        }
+        else {
+            cout << "Board Index To Coordinates Test: " << i + 1 << " failed. C vs E.c.:" << board_index_to_coordinates(indexes[i]) << " vs " << expected_coordinates[i] << endl;
+        }
+    }
+
+    cout << "Board Index To Coordinates test" << endl;
+    cout << correct_counter << "/" << indexes.size() << endl;
+    cout << separator << endl;
+
+}
+
 void empty_board_king_moves_test(Board* board) {
 
     vector<int> starting_positions = { 35, 0, 7, 63, 56, 32, 4, 39, 59, 14, 49 };
@@ -1440,12 +1460,16 @@ void promotion_test() {
     cout << separator << endl;
 }
 
-
+/*
 int main() {
     SetConsoleOutputCP(65001);
 
     // board <-> fen tests
     fen_test(false);
+
+    // coordinates test
+    board_index_to_coordinates_test();
+
     // empty board tests
     Board* empty_board = new Board("8/8/8/8/8/8/8/8 w KQkq - 0 1");
     empty_board_king_moves_test(empty_board);
@@ -1501,3 +1525,4 @@ int main() {
     return 0;
 }
 
+*/

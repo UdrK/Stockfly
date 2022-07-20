@@ -23,6 +23,7 @@ public:
     Piece** get_board();
     Piece* piece_at(int);
     King* get_king(bool);
+    std::vector<Piece*> get_pieces(bool);
     int get_en_passant_file();
     bool* get_castle_rights();
 
