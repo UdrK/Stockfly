@@ -10,6 +10,7 @@
 #include "src/utils.h"
 #include "src/generic_ai.h"
 #include "src/random_ai.h"
+#include "src/stockfly.h"
 
 #include "src/king.h"
 #include "src/queen.h"
@@ -94,14 +95,12 @@ void game_loop(Board* board, int turn) {
 		std::cout << "Draw!";
 }
 
-void ai_game_loop(Board* board, bool player_side, int turn) {
+void ai_game_loop(Board* board, Generic_ai* ai, bool player_side, int turn) {
 
 	int i = turn;
 	bool mate = false;
 	bool draw = false;
 	bool side_turn = (i % 2 == 0);
-
-	Generic_ai* ai = new Random_ai(!player_side);
 
 	while (!mate && !draw) {
 
@@ -182,19 +181,15 @@ void solitaire() {
 	while (true) {}
 }
 
-void against_random() {
-	Board* board = new Board("");
-	board->set_castle_rights(true, true, true, true);
-
-	ai_game_loop(board, true, 0);
-
-	while (true) {}
-}
-
 int main() {
 
-	against_random();
+	Board* board = new Board("");
+
+	ai_game_loop(board, new Stockfly(false), true, 0);
+
+	while (true) {}
 
 	return 0;
 }
+
 

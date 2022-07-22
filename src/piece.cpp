@@ -268,7 +268,7 @@ std::vector<int> Piece::pawn_movement(Board* board, int position, bool side) {
     int file_distance = file - en_passant_file;
 
     // if opponent played pawn forward 2 squares
-    if (en_passant_file != -1) {
+    if (en_passant_file != 8) {
         // if my pawn is next to the file of the opponents pawn AND
         // EITHER i'm white and i'm on the 5th rank OR i'm black and i'm on the 4th rank
         if (abs(file_distance) == 1 && ((rank == 3 && side_multiplier == -1) || (rank == 4 && side_multiplier == 1))) {

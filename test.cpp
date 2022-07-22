@@ -72,7 +72,7 @@ void fen_test(bool print) {
     Board* b = new Board(string(""));
     for (auto f : fens) {
         fens_length++;
-        b->set_from_fen(f);
+        b->set_from_fen(f, true);
         string calculated_fen = b->get_fen();
         string res = "X";
 
@@ -91,6 +91,42 @@ void fen_test(bool print) {
     }
 
     cout << "Fen <-> Board conversions test" << endl;
+    cout << correct_counter << "/" << fens_length << endl;
+    cout << separator << endl;
+}
+
+void verbose_fen_test() {
+    string fens[] = {
+        "r3kb1r/pp3p1p/3pbn2/6p1/4P3/1PNK4/PBP2PPP/R5NR w kq 6",
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 8",
+        "rnb1k2r/pppqppbp/3p1np1/8/4PP2/3P1N2/PPP1B1PP/RNBQ1RK1 b kq 8",
+        "1rbqk1nr/pp3pb1/2n4p/6p1/2BP1pP1/2P2N2/PP5P/RNBQK2R w KQk 6",
+        "r3kbnr/p1pp1ppp/1pb5/6B1/8/2N2N2/PPP1BPPP/R2R2K1 w kq 8",
+    };
+
+    int piece_counts[] = {
+        25,
+        32,
+        32,
+        28,
+        26
+    };
+
+    int correct_counter = 0;
+    int fens_length = 0;
+
+    Board* b = new Board(string(""));
+    for (auto f : fens) {
+        b->set_from_fen(f, true);
+        string calculated_fen = b->get_fen(true);
+
+        if (f == calculated_fen && b->get_pieces(true).size() + b->get_pieces(false).size() == piece_counts[fens_length]) {
+            correct_counter++;
+        }
+        fens_length++;
+    }
+
+    cout << "Fen <-> Board conversions test (verbose)" << endl;
     cout << correct_counter << "/" << fens_length << endl;
     cout << separator << endl;
 }
@@ -769,6 +805,21 @@ void move_piece_test() {
         "rnbqkbnr/pp1pppp1/2P4p/8/8/8/PPP1PPPP/RNBQKBNR",
     };
     
+    std::vector<int> pieces_count_after = {
+        3,
+        20,
+        17,
+        30,
+        30,
+        30,
+        30,
+        29,
+        31,
+        31,
+        31,
+        31,
+    };
+
     int correct_counter = 0;
 
     for (int i = 0; i < fens_before.size(); i++) {
@@ -791,7 +842,9 @@ void move_piece_test() {
         }
 
         b->move_piece_to(moves[i].second, b->piece_at(moves[i].first));
-        if (b->get_fen() == fens_after[i]) {
+        std::string res = b->get_fen();
+        int pieces_on_the_board = b->get_pieces(true).size() + b->get_pieces(false).size();
+        if (res == fens_after[i] && pieces_on_the_board == pieces_count_after[i]) {
             correct_counter++;
         }
         else {
@@ -1000,27 +1053,27 @@ void castle_test() {
         "rn1qkbnr/pp2pp1p/2p3p1/3p1b2/3P1B2/2N5/PPPQPPPP/2KR1BNR",
         "rn1q1rk1/ppp2ppp/3bpn2/3p1b2/3P4/2PBP1B1/PP3PPP/RN1QK1NR",
         "r2qkbnr/pp1npppp/2p5/5b2/2pP1B2/2N5/PP1QPPPP/2KR1BNR",
-        "Illegal move, castle square is attacked",
-        "Illegal move, castle square is attacked",
-        "Illegal move, castle square is attacked",
-        "Illegal move, castle square is attacked",
-        "Illegal move, castle square is attacked",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
         "2kr1bnr/pp1n1ppp/2p5/3q1b2/3P1B2/5N2/PPPNB1PP/R2QK2R",
-        "Illegal move, castle square is attacked",
-        "Illegal move, castle square is attacked",
-        "Illegal move, castle square is attacked",
-        "Illegal move, castle square is attacked",
-        "Illegal move, can't castle with pieces in the way",
-        "Illegal move, can't castle with pieces in the way",
-        "Illegal move, can't castle with pieces in the way",
-        "Illegal move, can't castle with pieces in the way",
-        "Illegal move, can't castle with pieces in the way",
-        "Illegal move, can't castle with pieces in the way",
-        "Illegal move, can't castle with pieces in the way",
-        "Illegal move, can't castle with pieces in the way",
-        "Illegal move, can't castle with pieces in the way",
-        "Illegal move, can't castle with pieces in the way",
-        "Illegal move, can't castle with pieces in the way",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
+        "Illegal move, the player does not have the right to castle",
     };
 
     int correct_counter = 0;
@@ -1340,7 +1393,7 @@ void stalemate_test() {
 }
 
 void repetition_draw_test() {
-    std::string fen = "2r3k1/4ppp1/7p/8/8/3Q3P/5PP1/6K1";
+    std::string fen = "2r3k1/4ppp1/7p/8/8/3Q3P/5PP1/6K1 w  8";
 
     std::vector<std::string> moves = {
         "Qd3-e4",
@@ -1354,7 +1407,6 @@ void repetition_draw_test() {
     };
 
     Board* board = new Board(fen);
-    board->set_castle_rights(false, false, false, false);
     int i = 0;
     int correct_counter = 0;
     for (std::string move : moves) {
@@ -1467,6 +1519,8 @@ int main() {
     // board <-> fen tests
     fen_test(false);
 
+    verbose_fen_test();
+
     // coordinates test
     board_index_to_coordinates_test();
 
@@ -1524,5 +1578,4 @@ int main() {
 
     return 0;
 }
-
 */
