@@ -15,6 +15,8 @@
 #include "src/knight.h"
 #include "src/pawn.h"
 
+#include "src/generic_ai.h"
+#include "src/stockfly.h"
 
 using namespace std;
 
@@ -1238,7 +1240,6 @@ void mate_test() {
     int correct_counter = 0;
     for (int i = 0; i < fens.size(); i++) {
         Board* board = new Board(fens[i]);
-        board->set_castle_rights(true, true, true, true);
         try {
             board->move(moves[i], sides[i]);
             Piece* enemy_king = board->get_king(!sides[i]);
@@ -1248,7 +1249,7 @@ void mate_test() {
             else if (fens[i] == "rn1qk2r/pbpp1pQp/1p3n2/4p3/4P3/bP6/P1PP1PPP/RN2KBNR") {
                 correct_counter++;
             } else {
-                cout << "Castle test " << i + 1 << " failed." << endl;
+                cout << "Mate test " << i + 1 << " failed." << endl;
             }
         }
         catch (const std::invalid_argument& e) {
@@ -1512,10 +1513,111 @@ void promotion_test() {
     cout << separator << endl;
 }
 
-/*
+void unmake_move_test() {
+    std::vector<std::string> fens = {
+        "r1bq1rk1/ppp2ppp/2n1pn2/8/2NP4/5NP1/PP2PPP1/R2QKB1R w KQ 8",
+        "r2qkb1r/pp2pppp/1np2n2/5b2/2BP4/2N1PN2/PP3PPP/R1BQKR2 b Qkq 8",
+        "r1bqk1nr/ppp2pbp/2np2p1/3Pp3/2B5/2N1P3/PPP2PPP/R1BQK1NR w KQkq 4",
+        "r1bqk1nr/ppp2pbp/2np2p1/3Pp3/2B5/2N1PN2/PPPBQPPP/R3K2R w KQkq 8",
+        "r3k2r/pppq1pbp/2np1np1/3Ppb2/2B5/2N1PN2/PPP2PPP/R1BQK2R b KQkq 8",
+    };
+
+    std::vector<std::string> moves_1 = {
+        "Pd4-d5",   
+        "Nb6-c4",   
+        "Pd5-e6",   
+        "O-O",   
+        "o-o",
+    };
+
+    std::vector<std::string> moves_2 = {
+        "Rh1-h7",
+        "Qd8-d4",
+        "Pd5-c6",
+        "O-O-O",
+        "o-o-o",
+    };
+
+    int correct_counter = 0;
+    for (int i = 0; i < fens.size(); i++) {
+        Board* board = new Board(fens[i]);
+        int piece_count_before = board->get_pieces(true).size() + board->get_pieces(false).size();
+        board->move(moves_1[i], board->get_side_turn());
+        board->set_from_fen(fens[i], true);
+        int piece_count_after = board->get_pieces(true).size() + board->get_pieces(false).size();
+        std::string new_old_fen = board->get_fen(true);
+        if (fens[i] == new_old_fen && piece_count_before == piece_count_after) {
+            correct_counter++;
+        }
+        else {
+            cout << "Unmake move test " << i + 1 << "a failed." << endl;
+        }
+
+        piece_count_before = board->get_pieces(true).size() + board->get_pieces(false).size();
+        board->move(moves_2[i], board->get_side_turn());
+        board->set_from_fen(fens[i], true);
+        piece_count_after = board->get_pieces(true).size() + board->get_pieces(false).size();
+        new_old_fen = board->get_fen(true);
+        if (fens[i] == new_old_fen && piece_count_before == piece_count_after) {
+            correct_counter++;
+        }
+        else {
+            cout << "Unmake move test " << i + 1 << "b failed." << endl;
+        }
+    }
+    cout << "Unmake move test" << endl;
+    cout << correct_counter << "/" << fens.size()*2 << endl;
+    cout << separator << endl;
+}
+
+int move_generation_counter(int depth, Generic_ai* ai, Board* board) {
+    if (depth == 0) {
+        return 1;
+    }
+
+    std::vector<std::string> moves = ai->generate_moves(board);
+    int positions_number = 0;
+
+    for (std::string move : moves) {
+        std::string fen_before_move = board->get_fen(true);
+        board->move(move, board->get_side_turn());
+        positions_number += move_generation_counter(depth - 1, ai, board);
+        board->set_from_fen(fen_before_move, true);
+    }
+
+    return positions_number;
+}
+
+void move_generation_test() {
+    std::vector<std::string> fens = {
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 8",
+    };
+
+    std::vector<int> expected_nodes = {
+        4865609,
+    };
+    
+    int correct_counter = 0;
+    for (int i = 0; i < fens.size(); i++) {
+        Board* board = new Board(fens[i]);
+        Generic_ai* ai = new Stockfly(true);
+        int positions = move_generation_counter(5, ai, board);
+        if (positions == expected_nodes[i]) {
+            correct_counter++;
+        }
+        else {
+            cout << "Move Generation test " << i + 1 << " failed. Positions reached: " << positions << endl;
+        }
+    }
+    cout << "Move Generation test" << endl;
+    cout << correct_counter << "/" << fens.size() << endl;
+    cout << separator << endl;
+}
+
 int main() {
     SetConsoleOutputCP(65001);
-
+    
+    /*
     // board <-> fen tests
     fen_test(false);
 
@@ -1576,6 +1678,15 @@ int main() {
 
     promotion_test();
 
+    unmake_move_test();
+    */
+    try {
+        move_generation_test();
+    }
+    catch (const std::invalid_argument& e) {
+        cout << e.what();
+    }
+
     return 0;
 }
-*/
+

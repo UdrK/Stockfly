@@ -9,6 +9,8 @@
 #include "pawn.h"
 #include "utils.h"
 
+#include <iostream>
+
 Board::Board(std::string fen) {
 
     // empty board and pieces lists, these will be set_from_fen
@@ -222,9 +224,9 @@ std::string Board::board_to_fen(bool verbose) {
         if (Board::black_queen_side_castle) {
             fen.push_back('q');
         }
-        char en_passant_file_char = Board::en_passant_file + 49;
+        std::string en_passant_file_str = std::to_string(Board::en_passant_file);
         fen.push_back(' ');
-        fen.push_back(en_passant_file_char);
+        fen += en_passant_file_str;
     }
     
     return fen;
@@ -427,26 +429,17 @@ bool Board::is_move_legal(Piece* piece, int destination_square) {
     if (std::count(pseudo_legal_move_list.begin(), pseudo_legal_move_list.end(), destination_square)) {
 
         // Code to "simulate" the move in order to verify if the king would end in check    ----------
-        // handles
-        int my_piece_original_position = piece->position;
-        Piece* destination_square_piece = Board::piece_at(destination_square);
-        // "making" the move
-        Board::move_piece_to(destination_square, piece);
+        std::string fen = Board::get_fen(true);
 
+        Board* simulation_board = new Board(fen);
+        simulation_board->move_piece_to(destination_square, simulation_board->piece_at(piece->position));
+
+        int king_square = simulation_board->get_king(piece->side)->position;
         // if AFTER THE MOVE the king is NOT in check, then move is LEGAL
-        if ( ! Board::get_king(piece->side)->is_attacked(this))
+        if(!simulation_board->is_square_attacked(king_square, !piece->side))
             is_legal = true;
-
-        // "unmaking" the move
-        Board::move_piece_to(my_piece_original_position, piece);
-
-        if (!destination_square_piece) {
-            Board::board[destination_square] = NULL;
-        }
-        else {
-            Board::move_piece_to(destination_square, destination_square_piece);
-        }
         
+        delete simulation_board;
     }
     return is_legal;
 }
@@ -857,7 +850,7 @@ void Board::move(std::string move, bool side_turn) {
                         }
                     }
                     else {
-                        throw std::invalid_argument("Illegal move");
+                        throw std::invalid_argument("Illegal move (king must be in check ?)");
                     }
                 }
             }
@@ -868,6 +861,11 @@ void Board::move(std::string move, bool side_turn) {
         //positions_fens.push_back(Board::get_fen(true));
     }
     catch (const std::invalid_argument& e) {
+        /*
+        std::cout << Board::get_fen(true) << std::endl;
+        std::cout << move << std::endl;
+        std::cout << side_turn << " vs " << Board::get_side_turn() << std::endl;
+        */
         throw e;
     }
 }

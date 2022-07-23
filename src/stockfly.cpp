@@ -67,10 +67,7 @@ std::vector<std::string> Stockfly::generate_moves(Board* board) {
 		std::vector<int> moves = p->pseudo_legal_moves(board);
 		for (int move : moves) {
 			if (board->is_move_legal(p, move)) {
-				std::string str_move = p->get_appearance(true);
-				str_move += board_index_to_coordinates(p->position);
-				str_move += "-";
-				str_move += board_index_to_coordinates(move);
+				std::string str_move = piece_position_to_move(p, move);
 				legal_moves.push_back(str_move);
 			}
 		}

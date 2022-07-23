@@ -181,6 +181,7 @@ void solitaire() {
 	while (true) {}
 }
 
+/*
 int main() {
 
 	Board* board = new Board("");
@@ -192,4 +193,4 @@ int main() {
 	return 0;
 }
 
-
+*/

@@ -14,6 +14,10 @@ Random_ai::Random_ai(bool side) {
 	Random_ai::side = side;
 }
 
+std::vector<std::string> Random_ai::generate_moves(Board*) {
+	return std::vector<std::string>();
+}
+
 std::string Random_ai::move(Board* board) {
 	
 	std::vector<Piece*> pieces = board->get_pieces(Random_ai::side);

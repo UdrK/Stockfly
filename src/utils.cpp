@@ -1,4 +1,5 @@
 ﻿#include "utils.h"
+#include "piece.h"
 #include <stdlib.h>
 #include <stdexcept>
 #include <string>
@@ -43,4 +44,13 @@ std::string board_index_to_coordinates(int index) {
     std::string coordinates = file_letter + std::to_string(rank);
 
     return coordinates;
+}
+
+std::string piece_position_to_move(Piece* piece, int position) {
+    std::string str_move = piece->get_appearance(true);
+    str_move += board_index_to_coordinates(piece->position);
+    str_move += "-";
+    str_move += board_index_to_coordinates(position);
+
+    return str_move;
 }

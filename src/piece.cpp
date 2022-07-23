@@ -142,7 +142,6 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
                 new_s_diag = false;
             }
         }
-
     }
 
     return list;
