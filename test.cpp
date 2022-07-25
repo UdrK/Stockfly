@@ -1614,6 +1614,8 @@ void move_generation_test() {
     cout << separator << endl;
 }
 
+
+
 int main() {
     SetConsoleOutputCP(65001);
     
@@ -1679,13 +1681,27 @@ int main() {
     promotion_test();
 
     unmake_move_test();
-    */
+    
     try {
         move_generation_test();
     }
     catch (const std::invalid_argument& e) {
         cout << e.what();
     }
+    */
+
+    vector<Piece*> test_vec = vector<Piece*>();
+    for (long i = 0; i < 1000000000; i++) {
+        if (!(i % 64 == 0)) {
+            test_vec.push_back(new Pawn(true, 0));
+        }
+        else {
+            test_vec.clear();
+            std::vector<Piece*>().swap(test_vec);
+        }
+    }
+
+    cout << "Done" << endl;
 
     return 0;
 }

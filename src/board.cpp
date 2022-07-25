@@ -40,7 +40,9 @@ void Board::fen_to_board(std::string fen, bool overwrite) {
     if (overwrite) {
         if (Board::white_pieces.size() > 0) {
             Board::white_pieces.clear();
+            std::vector<Piece*>().swap(Board::white_pieces);
             Board::black_pieces.clear();
+            std::vector<Piece*>().swap(Board::black_pieces);
             Board::white_king_side_castle = false;
             Board::white_queen_side_castle = false;
             Board::black_king_side_castle = false;
