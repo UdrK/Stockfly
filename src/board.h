@@ -44,6 +44,7 @@ public:
     void move_piece_to(int, Piece*);
     void castle(std::string, bool);
     void promotion(std::string, bool);
+    void unmove(std::string, bool);
     void move(std::string, bool);
 
 private:
@@ -52,6 +53,8 @@ private:
     Piece** board;
     std::vector<Piece*> white_pieces;
     std::vector<Piece*> black_pieces;
+    std::vector<Piece*> taken_white_pieces;
+    std::vector<Piece*> taken_black_pieces;
 
     // king handles to simplify code and better performance
     King* white_king;

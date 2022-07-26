@@ -49,10 +49,10 @@ cmake_ninja_workdir = C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stock
 
 build cmake_object_order_depends_target_stockfly: phony || CMakeFiles\stockfly.dir
 
-build CMakeFiles\stockfly.dir\src\stockfly.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\stockfly.cpp || cmake_object_order_depends_target_stockfly
+build CMakeFiles\stockfly.dir\src\ai\stockfly.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\ai\stockfly.cpp || cmake_object_order_depends_target_stockfly
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++20
   OBJECT_DIR = CMakeFiles\stockfly.dir
-  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src
+  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src\ai
   TARGET_COMPILE_PDB = CMakeFiles\stockfly.dir\
   TARGET_PDB = stockfly.pdb
 
@@ -77,63 +77,70 @@ build CMakeFiles\stockfly.dir\src\board.cpp.obj: CXX_COMPILER__stockfly_Debug C$
   TARGET_COMPILE_PDB = CMakeFiles\stockfly.dir\
   TARGET_PDB = stockfly.pdb
 
-build CMakeFiles\stockfly.dir\src\piece.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\piece.cpp || cmake_object_order_depends_target_stockfly
+build CMakeFiles\stockfly.dir\src\pieces\piece.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\pieces\piece.cpp || cmake_object_order_depends_target_stockfly
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++20
   OBJECT_DIR = CMakeFiles\stockfly.dir
-  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src
+  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src\pieces
   TARGET_COMPILE_PDB = CMakeFiles\stockfly.dir\
   TARGET_PDB = stockfly.pdb
 
-build CMakeFiles\stockfly.dir\src\king.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\king.cpp || cmake_object_order_depends_target_stockfly
+build CMakeFiles\stockfly.dir\src\pieces\king.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\pieces\king.cpp || cmake_object_order_depends_target_stockfly
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++20
   OBJECT_DIR = CMakeFiles\stockfly.dir
-  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src
+  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src\pieces
   TARGET_COMPILE_PDB = CMakeFiles\stockfly.dir\
   TARGET_PDB = stockfly.pdb
 
-build CMakeFiles\stockfly.dir\src\queen.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\queen.cpp || cmake_object_order_depends_target_stockfly
+build CMakeFiles\stockfly.dir\src\pieces\queen.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\pieces\queen.cpp || cmake_object_order_depends_target_stockfly
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++20
   OBJECT_DIR = CMakeFiles\stockfly.dir
-  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src
+  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src\pieces
   TARGET_COMPILE_PDB = CMakeFiles\stockfly.dir\
   TARGET_PDB = stockfly.pdb
 
-build CMakeFiles\stockfly.dir\src\rook.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\rook.cpp || cmake_object_order_depends_target_stockfly
+build CMakeFiles\stockfly.dir\src\pieces\rook.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\pieces\rook.cpp || cmake_object_order_depends_target_stockfly
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++20
   OBJECT_DIR = CMakeFiles\stockfly.dir
-  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src
+  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src\pieces
   TARGET_COMPILE_PDB = CMakeFiles\stockfly.dir\
   TARGET_PDB = stockfly.pdb
 
-build CMakeFiles\stockfly.dir\src\bishop.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\bishop.cpp || cmake_object_order_depends_target_stockfly
+build CMakeFiles\stockfly.dir\src\pieces\bishop.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\pieces\bishop.cpp || cmake_object_order_depends_target_stockfly
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++20
   OBJECT_DIR = CMakeFiles\stockfly.dir
-  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src
+  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src\pieces
   TARGET_COMPILE_PDB = CMakeFiles\stockfly.dir\
   TARGET_PDB = stockfly.pdb
 
-build CMakeFiles\stockfly.dir\src\knight.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\knight.cpp || cmake_object_order_depends_target_stockfly
+build CMakeFiles\stockfly.dir\src\pieces\knight.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\pieces\knight.cpp || cmake_object_order_depends_target_stockfly
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++20
   OBJECT_DIR = CMakeFiles\stockfly.dir
-  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src
+  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src\pieces
   TARGET_COMPILE_PDB = CMakeFiles\stockfly.dir\
   TARGET_PDB = stockfly.pdb
 
-build CMakeFiles\stockfly.dir\src\pawn.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\pawn.cpp || cmake_object_order_depends_target_stockfly
+build CMakeFiles\stockfly.dir\src\pieces\pawn.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\pieces\pawn.cpp || cmake_object_order_depends_target_stockfly
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++20
   OBJECT_DIR = CMakeFiles\stockfly.dir
-  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src
+  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src\pieces
   TARGET_COMPILE_PDB = CMakeFiles\stockfly.dir\
   TARGET_PDB = stockfly.pdb
 
-build CMakeFiles\stockfly.dir\game.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\game.cpp || cmake_object_order_depends_target_stockfly
+build CMakeFiles\stockfly.dir\game_loop.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\game_loop.cpp || cmake_object_order_depends_target_stockfly
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++20
   OBJECT_DIR = CMakeFiles\stockfly.dir
   OBJECT_FILE_DIR = CMakeFiles\stockfly.dir
   TARGET_COMPILE_PDB = CMakeFiles\stockfly.dir\
   TARGET_PDB = stockfly.pdb
 
-build CMakeFiles\stockfly.dir\src\random_ai.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\random_ai.cpp || cmake_object_order_depends_target_stockfly
+build CMakeFiles\stockfly.dir\src\ai\random_ai.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\ai\random_ai.cpp || cmake_object_order_depends_target_stockfly
+  FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++20
+  OBJECT_DIR = CMakeFiles\stockfly.dir
+  OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src\ai
+  TARGET_COMPILE_PDB = CMakeFiles\stockfly.dir\
+  TARGET_PDB = stockfly.pdb
+
+build CMakeFiles\stockfly.dir\src\ply.cpp.obj: CXX_COMPILER__stockfly_Debug C$:\Users\costa\Home\Opus\_Computer_Science\Projects\stockfly\src\ply.cpp || cmake_object_order_depends_target_stockfly
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++20
   OBJECT_DIR = CMakeFiles\stockfly.dir
   OBJECT_FILE_DIR = CMakeFiles\stockfly.dir\src
@@ -148,7 +155,7 @@ build CMakeFiles\stockfly.dir\src\random_ai.cpp.obj: CXX_COMPILER__stockfly_Debu
 #############################################
 # Link the executable stockfly.exe
 
-build stockfly.exe: CXX_EXECUTABLE_LINKER__stockfly_Debug CMakeFiles\stockfly.dir\src\stockfly.cpp.obj CMakeFiles\stockfly.dir\test.cpp.obj CMakeFiles\stockfly.dir\src\utils.cpp.obj CMakeFiles\stockfly.dir\src\board.cpp.obj CMakeFiles\stockfly.dir\src\piece.cpp.obj CMakeFiles\stockfly.dir\src\king.cpp.obj CMakeFiles\stockfly.dir\src\queen.cpp.obj CMakeFiles\stockfly.dir\src\rook.cpp.obj CMakeFiles\stockfly.dir\src\bishop.cpp.obj CMakeFiles\stockfly.dir\src\knight.cpp.obj CMakeFiles\stockfly.dir\src\pawn.cpp.obj CMakeFiles\stockfly.dir\game.cpp.obj CMakeFiles\stockfly.dir\src\random_ai.cpp.obj
+build stockfly.exe: CXX_EXECUTABLE_LINKER__stockfly_Debug CMakeFiles\stockfly.dir\src\ai\stockfly.cpp.obj CMakeFiles\stockfly.dir\test.cpp.obj CMakeFiles\stockfly.dir\src\utils.cpp.obj CMakeFiles\stockfly.dir\src\board.cpp.obj CMakeFiles\stockfly.dir\src\pieces\piece.cpp.obj CMakeFiles\stockfly.dir\src\pieces\king.cpp.obj CMakeFiles\stockfly.dir\src\pieces\queen.cpp.obj CMakeFiles\stockfly.dir\src\pieces\rook.cpp.obj CMakeFiles\stockfly.dir\src\pieces\bishop.cpp.obj CMakeFiles\stockfly.dir\src\pieces\knight.cpp.obj CMakeFiles\stockfly.dir\src\pieces\pawn.cpp.obj CMakeFiles\stockfly.dir\game_loop.cpp.obj CMakeFiles\stockfly.dir\src\ai\random_ai.cpp.obj CMakeFiles\stockfly.dir\src\ply.cpp.obj
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:console
   LINK_LIBRARIES = kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib

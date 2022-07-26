@@ -1,5 +1,5 @@
 ﻿#include "utils.h"
-#include "piece.h"
+#include "pieces/piece.h"
 #include <stdlib.h>
 #include <stdexcept>
 #include <string>
@@ -28,7 +28,7 @@ int coordinates_to_board_index(std::string coordinates) {
     int rank_number = 8 - (int(coordinates[1]) - 48);  // rank
     int index = 8 * rank_number + file_number;
 
-    if (file_number < 0 || file_number > 7 || rank_number < 0 || rank_number > 7) {
+    if (file_number < 0 || file_number > 7 || rank_number < 0 || rank_number > 7 || index < 0 || index > 63) {
         throw std::invalid_argument("Coordinates do not represent a square on the chessboard");
     }
 

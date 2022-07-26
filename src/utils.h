@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 #include <vector>
-#include "piece.h"
+#include "pieces/piece.h"
 
 extern std::map<std::string, std::string> unicode_pieces;
 

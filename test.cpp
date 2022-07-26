@@ -5,18 +5,18 @@
 #include <windows.h>
 
 #include "src/board.h"
-#include "src/piece.h"
+#include "src/pieces/piece.h"
 #include "src/utils.h"
 
-#include "src/king.h"
-#include "src/queen.h"
-#include "src/rook.h"
-#include "src/bishop.h"
-#include "src/knight.h"
-#include "src/pawn.h"
+#include "src/pieces/king.h"
+#include "src/pieces/queen.h"
+#include "src/pieces/rook.h"
+#include "src/pieces/bishop.h"
+#include "src/pieces/knight.h"
+#include "src/pieces/pawn.h"
 
-#include "src/generic_ai.h"
-#include "src/stockfly.h"
+#include "src/ai/ai.h"
+#include "src/ai/stockfly.h"
 
 using namespace std;
 
@@ -1570,7 +1570,7 @@ void unmake_move_test() {
     cout << separator << endl;
 }
 
-int move_generation_counter(int depth, Generic_ai* ai, Board* board) {
+int move_generation_counter(int depth, Ai* ai, Board* board) {
     if (depth == 0) {
         return 1;
     }
@@ -1582,6 +1582,9 @@ int move_generation_counter(int depth, Generic_ai* ai, Board* board) {
         std::string fen_before_move = board->get_fen(true);
         board->move(move, board->get_side_turn());
         positions_number += move_generation_counter(depth - 1, ai, board);
+        if (positions_number % 1000 == 0) {
+            cout << positions_number << endl;
+        }
         board->set_from_fen(fen_before_move, true);
     }
 
@@ -1600,7 +1603,7 @@ void move_generation_test() {
     int correct_counter = 0;
     for (int i = 0; i < fens.size(); i++) {
         Board* board = new Board(fens[i]);
-        Generic_ai* ai = new Stockfly(true);
+        Ai* ai = new Stockfly(true);
         int positions = move_generation_counter(5, ai, board);
         if (positions == expected_nodes[i]) {
             correct_counter++;
@@ -1618,7 +1621,7 @@ void move_generation_test() {
 
 int main() {
     SetConsoleOutputCP(65001);
-    
+   
     /*
     // board <-> fen tests
     fen_test(false);
@@ -1682,27 +1685,16 @@ int main() {
 
     unmake_move_test();
     
+    */
+
+    
     try {
         move_generation_test();
     }
     catch (const std::invalid_argument& e) {
         cout << e.what();
     }
-    */
-
-    vector<Piece*> test_vec = vector<Piece*>();
-    for (long i = 0; i < 1000000000; i++) {
-        if (!(i % 64 == 0)) {
-            test_vec.push_back(new Pawn(true, 0));
-        }
-        else {
-            test_vec.clear();
-            std::vector<Piece*>().swap(test_vec);
-        }
-    }
-
-    cout << "Done" << endl;
-
+    
     return 0;
 }
 

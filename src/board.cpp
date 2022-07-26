@@ -1,12 +1,12 @@
 #include <stdexcept>
 #include "board.h"
-#include "piece.h"
-#include "king.h"
-#include "queen.h"
-#include "rook.h"
-#include "bishop.h"
-#include "knight.h"
-#include "pawn.h"
+#include "pieces/piece.h"
+#include "pieces/king.h"
+#include "pieces/queen.h"
+#include "pieces/rook.h"
+#include "pieces/bishop.h"
+#include "pieces/knight.h"
+#include "pieces/pawn.h"
 #include "utils.h"
 
 #include <iostream>
@@ -15,12 +15,18 @@ Board::Board(std::string fen) {
 
     // empty board and pieces lists, these will be set_from_fen
     Board::board = new Piece * [Board::board_size];
+
     Board::white_pieces = std::vector<Piece*>();
     Board::black_pieces = std::vector<Piece*>();
+
+    Board::taken_white_pieces = std::vector<Piece*>();
+    Board::taken_black_pieces = std::vector<Piece*>();
+
     Board::white_king_side_castle = false;
     Board::white_queen_side_castle = false;
     Board::black_king_side_castle = false;
     Board::black_queen_side_castle = false;
+
     Board::en_passant_file = 8;
 
     // list of position reached (updated at every move) in fen format
@@ -870,4 +876,8 @@ void Board::move(std::string move, bool side_turn) {
         */
         throw e;
     }
+}
+
+void Board::unmove(std::string, bool) {
+    
 }
