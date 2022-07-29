@@ -4,22 +4,10 @@
 Ply::Ply(std::string move_notation, bool player) {
 	Ply::move_notation = move_notation;
 	Ply::player = player;
-	if (move_notation != "O-O" && move_notation != "O-O-O" && move_notation != "o-o" && move_notation != "o-o-o") {
-		Ply::origin_square = coordinates_to_board_index(move_notation.substr(1, 2));
-		Ply::destination_square = coordinates_to_board_index(move_notation.substr(4, 2));
-		if ((move_notation[0] == 'P' && destination_square <= 7 && player) ||
-			(move_notation[0] == 'P' && destination_square >= 56 && !player)) {
-			Ply::promotion = true;
-			Ply::castle = false;
-		}
-	}
-	else {
-		Ply::castle = true;
-		Ply::promotion = false;
-		Ply::origin_square = -1;
-		Ply::destination_square = -1;
-		Ply::taken_square = -1;
-	}
+}
+
+std::string Ply::get_move_notation() {
+	return Ply::move_notation;
 }
 
 bool Ply::get_player() {
@@ -34,6 +22,10 @@ Piece* Ply::get_taken_piece() {
 	return Ply::taken_piece;
 }
 
+Piece* Ply::get_promotion_piece() {
+	return Ply::promotion_piece;
+}
+
 int Ply::get_origin_square() {
 	return Ply::origin_square;
 }
@@ -46,6 +38,32 @@ int Ply::get_taken_square() {
 	return Ply::taken_square;
 }
 
+bool* Ply::get_castle_rights() {
+	bool rights[4] = { Ply::white_king_side_castle, Ply::white_queen_side_castle, Ply::black_king_side_castle, Ply::black_queen_side_castle };
+	return rights;
+}
+
+int Ply::get_en_passant_file() {
+	return en_passant_file;
+}
+
+
+void Ply::set_origin_square(int origin_square) {
+	Ply::origin_square = origin_square;
+}
+
+void Ply::set_destination_square(int destination_square) {
+	Ply::destination_square = destination_square;
+}
+
+void Ply::set_castle(bool castle) {
+	Ply::castle = castle;
+}
+
+void Ply::set_promotion(bool promotion) {
+	Ply::promotion = promotion;
+}
+
 void Ply::set_moving_piece(Piece* piece) {
 	Ply::moving_piece = piece;
 }
@@ -54,8 +72,23 @@ void Ply::set_taken_piece(Piece* piece) {
 	Ply::taken_piece = piece;
 }
 
+void Ply::set_promotion_piece(Piece* piece) {
+	Ply::promotion_piece = piece;
+}
+
 void Ply::set_taken_square(int square) {
 	Ply::taken_square = square;
+}
+
+void Ply::set_castle_rights(bool white_king_side_castle, bool white_queen_side_castle, bool black_king_side_castle, bool black_queen_side_castle) {
+	Ply::white_king_side_castle = white_king_side_castle;
+	Ply::white_queen_side_castle = white_queen_side_castle;
+	Ply::black_king_side_castle = black_king_side_castle;
+	Ply::black_queen_side_castle = black_queen_side_castle;
+}
+
+void Ply::set_en_passant_file(int en_passant_file) {
+	Ply::en_passant_file = en_passant_file;
 }
 
 bool Ply::is_en_passant() {

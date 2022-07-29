@@ -7,6 +7,7 @@
 #include "src/board.h"
 #include "src/pieces/piece.h"
 #include "src/utils.h"
+#include "src/ply.h"
 
 #include "src/pieces/king.h"
 #include "src/pieces/queen.h"
@@ -1082,9 +1083,12 @@ void castle_test() {
     for (int i = 0; i < starting_fens.size(); i++) {
         Board* b = new Board(starting_fens[i]);
         b->set_castle_rights(true, true, true, true);
+        b->set_player(sides[i]);
         std::string final_fen;
         try {
-            b->move(moves[i], sides[i]);
+            Ply* p = new Ply(moves[i], sides[i]);
+            b->move(p);
+            delete p;
             final_fen = b->get_fen();
         }
         catch (const std::invalid_argument& e) {
@@ -1115,9 +1119,15 @@ void castle_rights_test() {
 
     Board* b = new Board(fen1);
     b->set_castle_rights(true, true, true, true);
-    b->move("Rh1-h8", true);
+    b->set_player(true);
+    Ply* p = new Ply("Rh1-h8", true);
+    b->move(p);
+    delete p;
     try {
-        b->move("O-O", true);
+        Ply* p = new Ply("O-O", true);
+        b->set_player(true);
+        b->move(p);
+        delete p;
     }
     catch (const std::invalid_argument& e) {
         std::string res = e.what();
@@ -1127,7 +1137,10 @@ void castle_rights_test() {
     }
 
     try {
-        b->move("o-o", false);
+        Ply* p = new Ply("o-o", false);
+        b->set_player(false);
+        b->move(p);
+        delete p;
     }
     catch (const std::invalid_argument& e) {
         std::string res = e.what();
@@ -1137,16 +1150,28 @@ void castle_rights_test() {
     }
 
     try {
-        b->move("O-O-O", true);
+        Ply* p = new Ply("O-O-O", true);
+        b->set_player(true);
+        b->move(p);
+        delete p;
     }
     catch (const std::invalid_argument& e) {
         correct_counter--;
     }
 
     try {
-        b->move("Rh8-h7", true);
-        b->move("Rd1-f1", true);
-        b->move("o-o-o", false);
+        Ply* p1 = new Ply("Rh8-h7", true);
+        Ply* p2 = new Ply("Rd1-f1", true);
+        Ply* p3 = new Ply("o-o-o", false);
+        b->move(p1);
+        b->set_player(true);
+        b->move(p2);
+        b->set_player(true);
+        b->move(p3);
+        b->set_player(false);
+        delete p1;
+        delete p2;
+        delete p3;
     }
     catch (const std::invalid_argument& e) {
         correct_counter--;
@@ -1155,10 +1180,16 @@ void castle_rights_test() {
 
     b = new Board(fen1);
     b->set_castle_rights(true, true, true, true);
-    b->move("Ra1-a8", true);
+    p = new Ply("Ra1-a8", true);
+    b->set_player(true);
+    b->move(p);
+    delete p;
 
     try {
-        b->move("O-O-O", true);
+        Ply* p = new Ply("O-O-O", true);
+        b->set_player(true);
+        b->move(p);
+        delete p;
     }
     catch (const std::invalid_argument& e) {
         std::string res = e.what();
@@ -1168,7 +1199,10 @@ void castle_rights_test() {
     }
 
     try {
-        b->move("o-o-o", false);
+        Ply* p = new Ply("o-o-o", false);
+        b->set_player(false);
+        b->move(p);
+        delete p;
     }
     catch (const std::invalid_argument& e) {
         std::string res = e.what();
@@ -1178,16 +1212,28 @@ void castle_rights_test() {
     }
 
     try {
-        b->move("O-O", true);
+        Ply* p = new Ply("O-O", true);
+        b->set_player(true);
+        b->move(p);
+        delete p;
     }
     catch (const std::invalid_argument& e) {
         correct_counter--;
     }
 
     try {
-        b->move("Ra8-a7", true);
-        b->move("Rf1-d1", true);
-        b->move("o-o", false);
+        Ply* p1 = new Ply("Ra8-a7", true);
+        Ply* p2 = new Ply("Rf1-d1", true);
+        Ply* p3 = new Ply("o-o", false);
+        b->move(p1);
+        b->set_player(true);
+        b->move(p2);
+        b->set_player(true);
+        b->move(p3);
+        b->set_player(false);
+        delete p1;
+        delete p2;
+        delete p3;
     }
     catch (const std::invalid_argument& e) {
         correct_counter--;
@@ -1241,7 +1287,9 @@ void mate_test() {
     for (int i = 0; i < fens.size(); i++) {
         Board* board = new Board(fens[i]);
         try {
-            board->move(moves[i], sides[i]);
+            Ply* p = new Ply(moves[i], sides[i]);
+            board->set_player(sides[i]);
+            board->move(p);
             Piece* enemy_king = board->get_king(!sides[i]);
             if (enemy_king->is_attacked(board) && board->is_mate(sides[i])) {
                 correct_counter++;
@@ -1302,7 +1350,10 @@ void insufficient_material_draw_test() {
         Board* board = new Board(fens[i]);
         board->set_castle_rights(false, false, false, false);
         try {
-            board->move(moves[i], sides[i]);
+            Ply* p = new Ply(moves[i], sides[i]);
+            board->set_player(sides[i]);
+            board->move(p);
+            delete p;
             if (i < 5) {
                 if (!board->is_draw_by_insufficient_material()) {
                     correct_counter++;
@@ -1364,7 +1415,10 @@ void stalemate_test() {
         Board* board = new Board(fens[i]);
         board->set_castle_rights(false, false, false, false);
         try {
-            board->move(moves[i], sides[i]);
+            Ply* p = new Ply(moves[i], sides[i]);
+            board->set_player(sides[i]);
+            board->move(p);
+            delete p;
             if (i < 4) {
                 if (board->is_stalemate(sides[i])) {
                     correct_counter++;
@@ -1411,7 +1465,10 @@ void repetition_draw_test() {
     int i = 0;
     int correct_counter = 0;
     for (std::string move : moves) {
-        board->move(move, (i % 2 == 0));
+        Ply* p = new Ply(move, (i % 2 == 0));
+        board->set_player((i % 2 == 0));
+        board->move(p);
+        delete p;
         i++;
         if (board->is_threefold_repetition()) {
             correct_counter++;
@@ -1486,7 +1543,10 @@ void promotion_test() {
         Board* board = new Board(fens[i]);
         board->set_castle_rights(false, false, false, false);
         try {
-            board->move(moves[i], sides[i]);
+            Ply* p = new Ply(moves[i], sides[i]);
+            board->set_player(sides[i]);
+            board->move(p);
+            delete p;
             if (i < 10) {
                 if (board->get_fen() == fens_after[i]) {
                     correct_counter++;
@@ -1513,7 +1573,7 @@ void promotion_test() {
     cout << separator << endl;
 }
 
-void unmake_move_test() {
+void fen_undo_move_test() {
     std::vector<std::string> fens = {
         "r1bq1rk1/ppp2ppp/2n1pn2/8/2NP4/5NP1/PP2PPP1/R2QKB1R w KQ 8",
         "r2qkb1r/pp2pppp/1np2n2/5b2/2BP4/2N1PN2/PP3PPP/R1BQKR2 b Qkq 8",
@@ -1542,7 +1602,9 @@ void unmake_move_test() {
     for (int i = 0; i < fens.size(); i++) {
         Board* board = new Board(fens[i]);
         int piece_count_before = board->get_pieces(true).size() + board->get_pieces(false).size();
-        board->move(moves_1[i], board->get_side_turn());
+        Ply* p = new Ply(moves_1[i], board->get_player());
+        board->move(p);
+        delete p;
         board->set_from_fen(fens[i], true);
         int piece_count_after = board->get_pieces(true).size() + board->get_pieces(false).size();
         std::string new_old_fen = board->get_fen(true);
@@ -1550,11 +1612,13 @@ void unmake_move_test() {
             correct_counter++;
         }
         else {
-            cout << "Unmake move test " << i + 1 << "a failed." << endl;
+            cout << "Fen-undo move test " << i + 1 << "a failed." << endl;
         }
 
         piece_count_before = board->get_pieces(true).size() + board->get_pieces(false).size();
-        board->move(moves_2[i], board->get_side_turn());
+        p = new Ply(moves_2[i], board->get_player());
+        board->move(p);
+        delete p;
         board->set_from_fen(fens[i], true);
         piece_count_after = board->get_pieces(true).size() + board->get_pieces(false).size();
         new_old_fen = board->get_fen(true);
@@ -1562,11 +1626,72 @@ void unmake_move_test() {
             correct_counter++;
         }
         else {
-            cout << "Unmake move test " << i + 1 << "b failed." << endl;
+            cout << "Fen-undo move test " << i + 1 << "b failed." << endl;
         }
     }
-    cout << "Unmake move test" << endl;
+    cout << "Fen-undo move test" << endl;
     cout << correct_counter << "/" << fens.size()*2 << endl;
+    cout << separator << endl;
+}
+
+void undo_move_test() {
+    std::vector<std::string> fens = {
+        "r1bq1rk1/ppp2ppp/2n1pn2/8/2NP4/5NP1/PP2PPP1/R2QKB1R w KQ 8",
+        "r2qkb1r/pp2pppp/1np2n2/5b2/2BP4/2N1PN2/PP3PPP/R1BQKR2 b Qkq 8",
+        "r1bqk1nr/ppp2pbp/2np2p1/3Pp3/2B5/2N1P3/PPP2PPP/R1BQK1NR w KQkq 4",
+        "r1bqk1nr/ppp2pbp/2np2p1/3Pp3/2B5/2N1PN2/PPPBQPPP/R3K2R w KQkq 8",
+        "r3k2r/pppq1pbp/2np1np1/3Ppb2/2B5/2N1PN2/PPP2PPP/R1BQK2R b KQkq 8",
+    };
+
+    std::vector<std::string> moves_1 = {
+        "Pd4-d5",
+        "Nb6-c4",
+        "Pd5-e6",
+        "O-O",
+        "o-o",
+    };
+
+    std::vector<std::string> moves_2 = {
+        "Rh1-h7",
+        "Qd8-d4",
+        "Pd5-c6",
+        "O-O-O",
+        "o-o-o",
+    };
+
+    int correct_counter = 0;
+    for (int i = 0; i < fens.size(); i++) {
+        Board* board = new Board(fens[i]);
+        int piece_count_before = board->get_pieces(true).size() + board->get_pieces(false).size();
+        Ply* p = new Ply(moves_1[i], board->get_player());
+        board->move(p);
+        board->undo_move(p);
+        delete p;
+        int piece_count_after = board->get_pieces(true).size() + board->get_pieces(false).size();
+        std::string new_old_fen = board->get_fen(true);
+        if (fens[i] == new_old_fen && piece_count_before == piece_count_after) {
+            correct_counter++;
+        }
+        else {
+            cout << "Undo move test " << i + 1 << "a failed." << endl;
+        }
+
+        piece_count_before = board->get_pieces(true).size() + board->get_pieces(false).size();
+        p = new Ply(moves_2[i], board->get_player());
+        board->move(p);
+        board->undo_move(p);
+        delete p;
+        piece_count_after = board->get_pieces(true).size() + board->get_pieces(false).size();
+        new_old_fen = board->get_fen(true);
+        if (fens[i] == new_old_fen && piece_count_before == piece_count_after) {
+            correct_counter++;
+        }
+        else {
+            cout << "Undo move test " << i + 1 << "b failed." << endl;
+        }
+    }
+    cout << "Undo move test" << endl;
+    cout << correct_counter << "/" << fens.size() * 2 << endl;
     cout << separator << endl;
 }
 
@@ -1580,7 +1705,9 @@ int move_generation_counter(int depth, Ai* ai, Board* board) {
 
     for (std::string move : moves) {
         std::string fen_before_move = board->get_fen(true);
-        board->move(move, board->get_side_turn());
+        Ply* p = new Ply(move, board->get_player());
+        board->move(p);
+        delete p;
         positions_number += move_generation_counter(depth - 1, ai, board);
         if (positions_number % 1000 == 0) {
             cout << positions_number << endl;
@@ -1591,6 +1718,7 @@ int move_generation_counter(int depth, Ai* ai, Board* board) {
     return positions_number;
 }
 
+/*
 void move_generation_test() {
     std::vector<std::string> fens = {
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 8",
@@ -1616,13 +1744,11 @@ void move_generation_test() {
     cout << correct_counter << "/" << fens.size() << endl;
     cout << separator << endl;
 }
-
-
+*/
 
 int main() {
     SetConsoleOutputCP(65001);
    
-    /*
     // board <-> fen tests
     fen_test(false);
 
@@ -1683,17 +1809,18 @@ int main() {
 
     promotion_test();
 
-    unmake_move_test();
-    
-    */
+    fen_undo_move_test();
 
-    
+    undo_move_test();
+
+    /*
     try {
         move_generation_test();
     }
     catch (const std::invalid_argument& e) {
         cout << e.what();
     }
+    */
     
     return 0;
 }

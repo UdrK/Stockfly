@@ -19,6 +19,8 @@
 #include "src/pieces/knight.h"
 #include "src/pieces/pawn.h"
 
+/*
+
 // 0 white's turn, 1 black's turn
 void game_loop(Board* board, int turn) {
 	

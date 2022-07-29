@@ -1,6 +1,8 @@
 ﻿// stockfly.cpp : Defines the entry point for the application.
 //
 
+/*
+
 #include "stockfly.h"
 #include "../utils.h"
 #include "../pieces/piece.h"
@@ -142,3 +144,4 @@ std::string Stockfly::move(Board* board) {
 
 	return best_move;
 }
+*/
