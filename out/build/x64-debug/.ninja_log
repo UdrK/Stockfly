@@ -58,3 +58,17 @@
 560	656	6808223283356297	stockfly.exe	601b9eb6d3a443e4
 1	558	6808224686630847	CMakeFiles/stockfly.dir/src/board.cpp.obj	c9b695e78271ca97
 558	663	6808224687508962	stockfly.exe	601b9eb6d3a443e4
+1	630	6808888445836695	CMakeFiles/stockfly.dir/src/ai/stockfly.cpp.obj	60beb5d9cfa549cf
+3	1173	6808888451255571	CMakeFiles/stockfly.dir/test.cpp.obj	7d7d18df57b59b85
+1194	1475	6808888453517634	stockfly.exe	601b9eb6d3a443e4
+1	886	6808892100085516	CMakeFiles/stockfly.dir/test.cpp.obj	7d7d18df57b59b85
+0	428	6808892665611264	CMakeFiles/stockfly.dir/src/ai/stockfly.cpp.obj	60beb5d9cfa549cf
+429	535	6808892666534204	stockfly.exe	601b9eb6d3a443e4
+0	947	6808894359482031	CMakeFiles/stockfly.dir/test.cpp.obj	7d7d18df57b59b85
+948	1055	6808894360357071	stockfly.exe	601b9eb6d3a443e4
+1	801	6808935610272291	CMakeFiles/stockfly.dir/src/ai/stockfly.cpp.obj	60beb5d9cfa549cf
+7	857	6808935610832794	CMakeFiles/stockfly.dir/src/board.cpp.obj	c9b695e78271ca97
+4	1202	6808935614273079	CMakeFiles/stockfly.dir/test.cpp.obj	7d7d18df57b59b85
+1203	1329	6808935615284033	stockfly.exe	601b9eb6d3a443e4
+0	956	6808935997889757	CMakeFiles/stockfly.dir/test.cpp.obj	7d7d18df57b59b85
+957	1071	6808935998820603	stockfly.exe	601b9eb6d3a443e4

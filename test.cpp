@@ -1704,21 +1704,22 @@ int move_generation_counter(int depth, Ai* ai, Board* board) {
     int positions_number = 0;
 
     for (std::string move : moves) {
-        std::string fen_before_move = board->get_fen(true);
         Ply* p = new Ply(move, board->get_player());
-        board->move(p);
-        delete p;
-        positions_number += move_generation_counter(depth - 1, ai, board);
-        if (positions_number % 1000 == 0) {
-            cout << positions_number << endl;
+        try {
+            board->move(p);
         }
-        board->set_from_fen(fen_before_move, true);
+        catch (const std::invalid_argument& e) {
+            delete p;
+            continue;
+        }
+        positions_number += move_generation_counter(depth - 1, ai, board);
+        board->undo_move(p);
+        delete p;
     }
 
     return positions_number;
 }
 
-/*
 void move_generation_test() {
     std::vector<std::string> fens = {
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 8",
@@ -1744,11 +1745,11 @@ void move_generation_test() {
     cout << correct_counter << "/" << fens.size() << endl;
     cout << separator << endl;
 }
-*/
 
 int main() {
     SetConsoleOutputCP(65001);
    
+    /*
     // board <-> fen tests
     fen_test(false);
 
@@ -1812,15 +1813,15 @@ int main() {
     fen_undo_move_test();
 
     undo_move_test();
+    */
 
-    /*
     try {
         move_generation_test();
     }
     catch (const std::invalid_argument& e) {
         cout << e.what();
     }
-    */
+    
     
     return 0;
 }

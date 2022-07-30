@@ -1,12 +1,12 @@
 ﻿// stockfly.cpp : Defines the entry point for the application.
 //
 
-/*
-
 #include "stockfly.h"
+#include <iostream>
 #include "../utils.h"
 #include "../pieces/piece.h"
 #include "../pieces/king.h"
+#include "../ply.h"
 
 int bad_position = -10000;
 int good_position = 10000;
@@ -55,23 +55,30 @@ int Stockfly::material_imbalance(Board* board) {
 }
 
 int Stockfly::evaluate(Board* board) {
-	int side_multiplier = board->get_side_turn() ? 1 : -1;
+	int side_multiplier = board->get_player() ? 1 : -1;
 	return material_imbalance(board) * side_multiplier;
 }
 
 std::vector<std::string> Stockfly::generate_moves(Board* board) {
 
-	bool side_turn = board->get_side_turn();
+	bool side_turn = board->get_player();
 	std::vector<Piece*> pieces = board->get_pieces(side_turn);
 	std::vector<std::string> legal_moves = std::vector<std::string>();
 
 	for (Piece* p : pieces) {
 		std::vector<int> moves = p->pseudo_legal_moves(board);
 		for (int move : moves) {
+
+			// does not check if move is legal, we let that to board->move 
+			std::string str_move = piece_position_to_move(p, move);
+			legal_moves.push_back(str_move);
+
+			/*
 			if (board->is_move_legal(p, move)) {
 				std::string str_move = piece_position_to_move(p, move);
 				legal_moves.push_back(str_move);
 			}
+			*/
 		}
 	}
 	// add castles to moves (what about promotion??)
@@ -94,7 +101,7 @@ int Stockfly::negamax(int depth, int alpha, int beta, Board* board) {
 		// no legal moves
 		if (moves.size() == 0) {
 			// if king in check: checkmate
-			if (board->get_king(board->get_side_turn())->is_attacked(board)) {
+			if (board->get_king(board->get_player())->is_attacked(board)) {
 				return bad_position;
 			}
 			// else stalemate
@@ -103,11 +110,22 @@ int Stockfly::negamax(int depth, int alpha, int beta, Board* board) {
 			}
 		}
 
-		std::string unmake_move_fen = board->get_fen(true);
 		for (std::string move : moves) {
-			board->move(move, board->get_side_turn());
+			Ply* p = new Ply(move, board->get_player());
+			try {
+				board->move(p);
+			}
+			catch (const std::invalid_argument& e) {
+				delete p;
+				continue;
+			}
+			
 			int eval = - negamax(depth - 1, -beta, -alpha, board);
-			board->set_from_fen(unmake_move_fen, true);
+
+			board->undo_move(p);
+
+			delete p;
+
 			if (eval >= beta) {
 				// move is better than other previously considered move, therefore opponent will avoid this branch
 				return beta;
@@ -126,22 +144,24 @@ Stockfly::Stockfly(bool side) {
 
 std::string Stockfly::move(Board* board) {
 	std::vector<std::string> moves = generate_moves(board);
-	std::string unmake_move_fen = board->get_fen(true);
+	//std::string unmake_move_fen = board->get_fen(true);
 
 	int side_multiplier = Stockfly::side ? 1 : -1;
 	int best_eval = bad_position;
 	std::string best_move = moves[0];
 
 	for (std::string move : moves) {
-		board->move(move, board->get_side_turn());
+		Ply* p = new Ply(move, board->get_player());
+		board->move(p);
 		int move_eval = -Stockfly::negamax(3, bad_position, good_position, board);
 		if (move_eval > best_eval) {
 			best_eval = move_eval;
 			best_move = move;
 		}
-		board->set_from_fen(unmake_move_fen, true);
+		board->undo_move(p);
+		delete p;
+		//board->set_from_fen(unmake_move_fen, true);
 	}
 
 	return best_move;
 }
-*/

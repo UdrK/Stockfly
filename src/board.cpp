@@ -426,17 +426,31 @@ bool Board::is_move_legal(Piece* piece, int destination_square) {
     if (std::count(pseudo_legal_move_list.begin(), pseudo_legal_move_list.end(), destination_square)) {
 
         // Code to "simulate" the move in order to verify if the king would end in check    ----------
-        std::string fen = Board::get_fen(true);
+        int backup_en_passant_file = Board::en_passant_file;
+        int backup_piece_original_position = piece->position;
 
-        Board* simulation_board = new Board(fen);
-        simulation_board->move_piece_to(destination_square, simulation_board->piece_at(piece->position));
+        Piece* backup_taken_piece = Board::move_piece_to(destination_square, piece);
 
-        int king_square = simulation_board->get_king(piece->side)->position;
+        int king_square = Board::get_king(piece->side)->position;
         // if AFTER THE MOVE the king is NOT in check, then move is LEGAL
-        if(!simulation_board->is_square_attacked(king_square, !piece->side))
+        if(!Board::is_square_attacked(king_square, !piece->side))
             is_legal = true;
         
-        delete simulation_board;
+        // undoing move
+        Board::en_passant_file = backup_en_passant_file;
+
+        // moving piece back
+        Board::board[backup_piece_original_position] = piece;
+        piece->position = backup_piece_original_position;
+
+        // moving taken piece back
+        Board::board[destination_square] = NULL;
+        if (backup_taken_piece) {
+            Board::board[backup_taken_piece->position] = backup_taken_piece;
+            std::vector<Piece*>& enemy_pieces = piece->side ? Board::black_pieces : Board::white_pieces;
+            enemy_pieces.push_back(backup_taken_piece);
+        }
+
     }
     return is_legal;
 }
@@ -985,12 +999,14 @@ void Board::undo_move(Ply* ply) {
         Piece* taken_piece = ply->get_taken_piece();
         Board::board[destination_square] = en_passant ? NULL : taken_piece;
         if (taken_piece) {
+            // this isn't actually necessary as when i "take" a piece, i don't change the position
+            /*
             if (!en_passant)
                 taken_piece->position = destination_square;
+            */
             std::vector<Piece*>& enemy_pieces = ply->get_player() ? Board::black_pieces : Board::white_pieces;
             enemy_pieces.push_back(taken_piece);
         }
-      
         
         if (ply->is_promotion()) {
             // if promotion remove the new piece from the list of pieces
