@@ -1745,7 +1745,7 @@ void move_generation_test() {
     cout << correct_counter << "/" << fens.size() << endl;
     cout << separator << endl;
 }
-
+/*
 int main() {
     SetConsoleOutputCP(65001);
    
@@ -1813,7 +1813,7 @@ int main() {
     fen_undo_move_test();
 
     undo_move_test();
-    */
+    
 
     try {
         move_generation_test();
@@ -1826,3 +1826,4 @@ int main() {
     return 0;
 }
 
+*/

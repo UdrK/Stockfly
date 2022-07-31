@@ -8,6 +8,7 @@
 #include "src/board.h"
 #include "src/pieces/piece.h"
 #include "src/utils.h"
+#include "src/ply.h"
 #include "src/ai/ai.h"
 #include "src/ai/random_ai.h"
 #include "src/ai/stockfly.h"
@@ -18,8 +19,6 @@
 #include "src/pieces/bishop.h"
 #include "src/pieces/knight.h"
 #include "src/pieces/pawn.h"
-
-/*
 
 // 0 white's turn, 1 black's turn
 void game_loop(Board* board, int turn) {
@@ -52,7 +51,9 @@ void game_loop(Board* board, int turn) {
 			std::cin >> move;
 
 			try {
-				board->move(move, side_turn);
+				Ply* p = new Ply(move, side_turn);
+				board->move(p);
+				delete p;
 				is_input_move_legal = true;
 				i += 1;
 
@@ -130,7 +131,9 @@ void ai_game_loop(Board* board, Ai* ai, bool player_side, int turn) {
 				move = ai->move(board);
 
 			try {
-				board->move(move, side_turn);
+				Ply* p = new Ply(move, side_turn);
+				board->move(p);
+				delete p;
 				is_input_move_legal = true;
 				i += 1;
 
@@ -183,8 +186,10 @@ void solitaire() {
 	while (true) {}
 }
 
-/*
+
 int main() {
+
+	std::string debug_fen = "2r1kr1b/1b2p2p/4Npp1/p3N3/P1RP4/1P6/1B3PPP/2R3K1 w";
 
 	Board* board = new Board("");
 
@@ -194,4 +199,4 @@ int main() {
 
 	return 0;
 }
-*/
+

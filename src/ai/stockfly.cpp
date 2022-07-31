@@ -72,13 +72,6 @@ std::vector<std::string> Stockfly::generate_moves(Board* board) {
 			// does not check if move is legal, we let that to board->move 
 			std::string str_move = piece_position_to_move(p, move);
 			legal_moves.push_back(str_move);
-
-			/*
-			if (board->is_move_legal(p, move)) {
-				std::string str_move = piece_position_to_move(p, move);
-				legal_moves.push_back(str_move);
-			}
-			*/
 		}
 	}
 	// add castles to moves (what about promotion??)
@@ -98,24 +91,14 @@ int Stockfly::negamax(int depth, int alpha, int beta, Board* board) {
 	else {
 		std::vector<std::string> moves = generate_moves(board);
 
-		// no legal moves
-		if (moves.size() == 0) {
-			// if king in check: checkmate
-			if (board->get_king(board->get_player())->is_attacked(board)) {
-				return bad_position;
-			}
-			// else stalemate
-			else {
-				return 0;
-			}
-		}
-
+		int illegal_moves = 0;
 		for (std::string move : moves) {
 			Ply* p = new Ply(move, board->get_player());
 			try {
 				board->move(p);
 			}
 			catch (const std::invalid_argument& e) {
+				illegal_moves++;
 				delete p;
 				continue;
 			}
@@ -134,6 +117,19 @@ int Stockfly::negamax(int depth, int alpha, int beta, Board* board) {
 				alpha = eval;
 			}
 		}
+
+		// no legal moves
+		if (moves.size() == illegal_moves) {
+			// if king in check: checkmate
+			if (board->get_king(board->get_player())->is_attacked(board)) {
+				return bad_position;
+			}
+			// else stalemate
+			else {
+				return 0;
+			}
+		}
+
 		return alpha;
 	}
 }
@@ -144,7 +140,6 @@ Stockfly::Stockfly(bool side) {
 
 std::string Stockfly::move(Board* board) {
 	std::vector<std::string> moves = generate_moves(board);
-	//std::string unmake_move_fen = board->get_fen(true);
 
 	int side_multiplier = Stockfly::side ? 1 : -1;
 	int best_eval = bad_position;
@@ -152,15 +147,20 @@ std::string Stockfly::move(Board* board) {
 
 	for (std::string move : moves) {
 		Ply* p = new Ply(move, board->get_player());
-		board->move(p);
+		try {
+			board->move(p);
+		}
+		catch (const std::invalid_argument& e) {
+			delete p;
+			continue;
+		}
 		int move_eval = -Stockfly::negamax(3, bad_position, good_position, board);
-		if (move_eval > best_eval) {
+		if (move_eval >= best_eval) {
 			best_eval = move_eval;
 			best_move = move;
 		}
 		board->undo_move(p);
 		delete p;
-		//board->set_from_fen(unmake_move_fen, true);
 	}
 
 	return best_move;
