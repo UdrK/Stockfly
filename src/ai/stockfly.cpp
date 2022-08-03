@@ -1,5 +1,4 @@
 ﻿// stockfly.cpp : Defines the entry point for the application.
-//
 
 #include "stockfly.h"
 #include <iostream>
@@ -62,18 +61,44 @@ int Stockfly::evaluate(Board* board) {
 std::vector<std::string> Stockfly::generate_moves(Board* board) {
 
 	bool side_turn = board->get_player();
+	int promotion_multiplier = side_turn ? 1 : 0;
 	std::vector<Piece*> pieces = board->get_pieces(side_turn);
 	std::vector<std::string> legal_moves = std::vector<std::string>();
 
 	for (Piece* p : pieces) {
 		std::vector<int> moves = p->pseudo_legal_moves(board);
 		for (int move : moves) {
-
 			// does not check if move is legal, we let that to board->move 
-			std::string str_move = piece_position_to_move(p, move);
-			legal_moves.push_back(str_move);
+			std::string str_move = piece_and_position_to_move(p, move);
+			
+			// generate promotions
+			if (p->get_appearance(true) == "P" && abs((64 * promotion_multiplier) - move) >= 56 + promotion_multiplier) {
+				legal_moves.push_back(str_move + "-Q");
+				legal_moves.push_back(str_move + "-R");
+				legal_moves.push_back(str_move + "-B");
+				legal_moves.push_back(str_move + "-N");
+			}
+			else {
+				legal_moves.push_back(str_move);
+			}
 		}
 	}
+	
+	// generate castling
+	bool* castle_rights = board->get_castle_rights();
+	if (side_turn) {
+		if (castle_rights[0])
+			legal_moves.push_back("O-O");
+		if (castle_rights[1])
+			legal_moves.push_back("O-O-O");
+	}
+	else {
+		if (castle_rights[2])
+			legal_moves.push_back("o-o");
+		if (castle_rights[3])
+			legal_moves.push_back("o-o-o");
+	}
+
 	// add castles to moves (what about promotion??)
 	return legal_moves;
 }
@@ -113,7 +138,8 @@ int Stockfly::negamax(int depth, int alpha, int beta, Board* board) {
 				// move is better than other previously considered move, therefore opponent will avoid this branch
 				return beta;
 			}
-			if (eval >= alpha) {
+			// >= ????
+			if (eval > alpha) {
 				alpha = eval;
 			}
 		}
@@ -134,8 +160,9 @@ int Stockfly::negamax(int depth, int alpha, int beta, Board* board) {
 	}
 }
 
-Stockfly::Stockfly(bool side) {
+Stockfly::Stockfly(bool side, int search_depth) {
 	Stockfly::side = side;
+	Stockfly::search_depth = search_depth;
 }
 
 std::string Stockfly::move(Board* board) {
@@ -154,7 +181,7 @@ std::string Stockfly::move(Board* board) {
 			delete p;
 			continue;
 		}
-		int move_eval = -Stockfly::negamax(3, bad_position, good_position, board);
+		int move_eval = -Stockfly::negamax(Stockfly::search_depth - 1, bad_position, good_position, board);
 		if (move_eval >= best_eval) {
 			best_eval = move_eval;
 			best_move = move;

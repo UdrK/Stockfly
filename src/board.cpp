@@ -527,6 +527,7 @@ bool Board::is_threefold_repetition() {
     return false;
 }
 
+// looks for pieces in the way or squares attacked
 bool Board::can_castle(char castle_type, bool side_turn) {
 
     if (castle_type == 'K' && side_turn) {
@@ -619,6 +620,21 @@ void Board::update_castling_rights(std::string players_piece_type, std::string t
     }
 }
 
+// assumes the square is empty
+void Board::move_piece_to_empty_square(int position, Piece* piece) {
+
+    int original_position = piece->position;
+
+    // remove piece from original position
+    Board::board[original_position] = NULL;
+
+    // put piece in position
+    Board::board[position] = piece;
+
+    // piece has moved, updating pieces internal position
+    piece->position = position;
+}
+
 // equivalent of taking the piece and moving it into position (removing other piece if there are any)
 Piece* Board::move_piece_to(int position, Piece* piece) {
 
@@ -657,8 +673,9 @@ Piece* Board::move_piece_to(int position, Piece* piece) {
         }
     }
 
+    // take piece
     if (takes_a_piece) {
-        // remove taken piece from list
+        // remove taken piece from list, no deleting as a pointer to the piece is saved in Ply and can be used to undo the move
         taken_piece = Board::board[taken_piece_position];
         std::vector<Piece*>& enemy_pieces = piece->side ? Board::black_pieces : Board::white_pieces;
         for (int i = 0; i < enemy_pieces.size(); i++) {
@@ -672,23 +689,8 @@ Piece* Board::move_piece_to(int position, Piece* piece) {
         Board::board[taken_piece_position] = NULL;
     }
 
-    // remove piece from original position
-    Board::board[original_piece_position] = NULL;
-
-    // put piece in position
-    Board::board[position] = piece;
-
-    // piece has moved, updating pieces internal position
-    piece->position = position;
-
-    // after any move, en passant is no longer possible
-    Board::en_passant_file = 8;
-
-    // if move is pawn 2 forward then en passant is possible
-    if (piece_type == "P" && abs(position - original_piece_position) > 15) {
-        int file = original_piece_position % 8;
-        Board::en_passant_file = file;
-    }
+    // move piece
+    Board::move_piece_to_empty_square(position, piece);
 
     return taken_piece;
 }
@@ -700,8 +702,8 @@ void Board::castle(std::string move, bool side_turn) {
         // WHITE ==============
         if (side_turn) {
             if (move == "O-O" && can_castle('K', true)) {
-                Board::move_piece_to(62, Board::piece_at(60));
-                Board::move_piece_to(61, Board::piece_at(63));
+                Board::move_piece_to_empty_square(62, Board::piece_at(60));
+                Board::move_piece_to_empty_square(61, Board::piece_at(63));
                 Board::white_king_side_castle = false;
                 Board::white_queen_side_castle = false;
                 return;
@@ -711,8 +713,8 @@ void Board::castle(std::string move, bool side_turn) {
             }
 
             if (move == "O-O-O" && can_castle('Q', true)) {
-                Board::move_piece_to(58, Board::piece_at(60));
-                Board::move_piece_to(59, Board::piece_at(56));
+                Board::move_piece_to_empty_square(58, Board::piece_at(60));
+                Board::move_piece_to_empty_square(59, Board::piece_at(56));
                 Board::white_king_side_castle = false;
                 Board::white_queen_side_castle = false;
                 return;
@@ -725,8 +727,8 @@ void Board::castle(std::string move, bool side_turn) {
             // BLACK ==============
             // black king side castles and has the right
             if (move == "o-o" && can_castle('K', false)) {
-                Board::move_piece_to(6, Board::piece_at(4));
-                Board::move_piece_to(5, Board::piece_at(7));
+                Board::move_piece_to_empty_square(6, Board::piece_at(4));
+                Board::move_piece_to_empty_square(5, Board::piece_at(7));
                 Board::black_king_side_castle = false;
                 Board::black_queen_side_castle = false;
                 return;
@@ -737,8 +739,8 @@ void Board::castle(std::string move, bool side_turn) {
 
             // black queen side castles and has the right
             if (move == "o-o-o" && can_castle('Q', false)) {
-                Board::move_piece_to(2, Board::piece_at(4));
-                Board::move_piece_to(3, Board::piece_at(0));
+                Board::move_piece_to_empty_square(2, Board::piece_at(4));
+                Board::move_piece_to_empty_square(3, Board::piece_at(0));
                 Board::black_king_side_castle = false;
                 Board::black_queen_side_castle = false;
                 return;
@@ -760,14 +762,8 @@ void Board::un_castle(std::string move, bool side_turn) {
         // WHITE ==============
         if (side_turn) {
             if (move == "O-O") {
-                Piece* king = Board::board[62];
-                Piece* rook = Board::board[61];
-                Board::board[62] = NULL;
-                Board::board[61] = NULL;
-                Board::board[60] = king;
-                Board::board[63] = rook;
-                king->position = 60;
-                rook->position = 63;
+                Board::move_piece_to_empty_square(60, Board::piece_at(62));
+                Board::move_piece_to_empty_square(63, Board::piece_at(61));
                 Board::white_king_side_castle = true;
                 Board::white_queen_side_castle = true;
                 return;
@@ -777,14 +773,8 @@ void Board::un_castle(std::string move, bool side_turn) {
             }
 
             if (move == "O-O-O") {
-                Piece* king = Board::board[58];
-                Piece* rook = Board::board[59];
-                Board::board[58] = NULL;
-                Board::board[59] = NULL;
-                Board::board[60] = king;
-                Board::board[56] = rook;
-                king->position = 60;
-                rook->position = 56;
+                Board::move_piece_to_empty_square(60, Board::piece_at(58));
+                Board::move_piece_to_empty_square(56, Board::piece_at(59));
                 Board::white_king_side_castle = true;
                 Board::white_queen_side_castle = true;
                 return;
@@ -797,14 +787,8 @@ void Board::un_castle(std::string move, bool side_turn) {
             // BLACK ==============
             // black king side castles and has the right
             if (move == "o-o") {
-                Piece* king = Board::board[6];
-                Piece* rook = Board::board[5];
-                Board::board[6] = NULL;
-                Board::board[5] = NULL;
-                Board::board[4] = king;
-                Board::board[7] = rook;
-                king->position = 4;
-                rook->position = 7;
+                Board::move_piece_to_empty_square(4, Board::piece_at(6));
+                Board::move_piece_to_empty_square(7, Board::piece_at(5));
                 Board::black_king_side_castle = true;
                 Board::black_queen_side_castle = true;
                 return;
@@ -815,14 +799,8 @@ void Board::un_castle(std::string move, bool side_turn) {
 
             // black queen side castles and has the right
             if (move == "o-o-o") {
-                Piece* king = Board::board[2];
-                Piece* rook = Board::board[3];
-                Board::board[2] = NULL;
-                Board::board[3] = NULL;
-                Board::board[4] = king;
-                Board::board[0] = rook;
-                king->position = 4;
-                rook->position = 0;
+                Board::move_piece_to_empty_square(4, Board::piece_at(2));
+                Board::move_piece_to_empty_square(0, Board::piece_at(3));
                 Board::black_king_side_castle = true;
                 Board::black_queen_side_castle = true;
                 return;
@@ -904,7 +882,9 @@ void Board::move(Ply* ply) {
     try {
         if (move_notation == "O-O" || move_notation == "O-O-O" || move_notation == "o-o" || move_notation == "o-o-o") {
             Board::castle(move_notation, Board::side_turn);
-            // if here, castle hasn't thrown, setting ply parameters
+            // updating en passant
+            Board::en_passant_file = 8;
+            // setting ply parameters
             castle = true;
         }
         else {
@@ -947,10 +927,21 @@ void Board::move(Ply* ply) {
             }
 
             // updating castling rights --------
+            // done only here since castling updates the rights on its own
             Board::update_castling_rights(players_piece_type, taken_piece_type, origin_square_index, destination_square_index);
+
+            // updating en passant
+            // if move is pawn 2 forward then en passant is possible
+            if (players_piece_type == "P" && abs(destination_square_index - origin_square_index) > 15) {
+                int file = origin_square_index % 8;
+                Board::en_passant_file = file;
+            }
+            else {
+                Board::en_passant_file = 8;
+            }
         }
-        // after a move has been made: change sides_turn, set ply's parameters
-        Board::side_turn = !side_turn;
+        // after a move has been made: change sides_turn set ply's parameters
+        Board::side_turn = !side_turn;        
         ply->set_moving_piece(ply_moving_piece);
         ply->set_taken_piece(ply_taken_piece);
         ply->set_promotion_piece(ply_promotion_piece);
@@ -999,11 +990,6 @@ void Board::undo_move(Ply* ply) {
         Piece* taken_piece = ply->get_taken_piece();
         Board::board[destination_square] = en_passant ? NULL : taken_piece;
         if (taken_piece) {
-            // this isn't actually necessary as when i "take" a piece, i don't change the position
-            /*
-            if (!en_passant)
-                taken_piece->position = destination_square;
-            */
             std::vector<Piece*>& enemy_pieces = ply->get_player() ? Board::black_pieces : Board::white_pieces;
             enemy_pieces.push_back(taken_piece);
         }

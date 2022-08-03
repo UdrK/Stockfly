@@ -3,6 +3,7 @@
 #include <string>
 #include <stdio.h>
 #include <windows.h>
+#include <chrono>
 
 #include "src/board.h"
 #include "src/pieces/piece.h"
@@ -1163,12 +1164,12 @@ void castle_rights_test() {
         Ply* p1 = new Ply("Rh8-h7", true);
         Ply* p2 = new Ply("Rd1-f1", true);
         Ply* p3 = new Ply("o-o-o", false);
+        b->set_player(true);
         b->move(p1);
         b->set_player(true);
         b->move(p2);
-        b->set_player(true);
-        b->move(p3);
         b->set_player(false);
+        b->move(p3);
         delete p1;
         delete p2;
         delete p3;
@@ -1225,12 +1226,12 @@ void castle_rights_test() {
         Ply* p1 = new Ply("Ra8-a7", true);
         Ply* p2 = new Ply("Rf1-d1", true);
         Ply* p3 = new Ply("o-o", false);
+        b->set_player(true);
         b->move(p1);
         b->set_player(true);
         b->move(p2);
-        b->set_player(true);
-        b->move(p3);
         b->set_player(false);
+        b->move(p3);
         delete p1;
         delete p2;
         delete p3;
@@ -1720,7 +1721,7 @@ int move_generation_counter(int depth, Ai* ai, Board* board) {
     return positions_number;
 }
 
-void move_generation_test() {
+void move_generation_test(int depth) {
     std::vector<std::string> fens = {
         "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq 8",
     };
@@ -1732,7 +1733,7 @@ void move_generation_test() {
     int correct_counter = 0;
     for (int i = 0; i < fens.size(); i++) {
         Board* board = new Board(fens[i]);
-        Ai* ai = new Stockfly(true);
+        Ai* ai = new Stockfly(true, depth);
         int positions = move_generation_counter(5, ai, board);
         if (positions == expected_nodes[i]) {
             correct_counter++;
@@ -1745,11 +1746,65 @@ void move_generation_test() {
     cout << correct_counter << "/" << fens.size() << endl;
     cout << separator << endl;
 }
-/*
-int main() {
+
+int recursive_move_generation(Ai* ai, int depth, Board* board) {
+    if (depth == 0) {
+        ai->evaluate(board);
+        return 1;
+    }
+
+    std::vector<std::string> moves = ai->generate_moves(board);
+    int res = 0;
+
+    for (std::string move : moves) {
+        Ply* p = new Ply(move, board->get_player());
+        try {
+            board->move(p);
+        }
+        catch (const std::invalid_argument& e) {
+            delete p;
+            continue;
+        }
+        res += recursive_move_generation(ai, depth - 1, board);
+        board->undo_move(p);
+        delete p;
+    }
+
+    return res;
+}
+
+void move_generation_time_test(std::string fen, int depth) {
+
+    Board* board = new Board(fen);
+    Ai* ai = new Stockfly(true, depth);
+
+    recursive_move_generation(ai, depth, board);
+}
+
+void stockfly_negamax_time_test(std::string fen, int depth) {
+    Board* board = new Board(fen);
+    Ai* ai = new Stockfly(true, depth);
+
+    ai->move(board);
+}
+
+void time_test(std::string test_string, std::string fen, int depth, void (*function_to_measure)(std::string, int)) {
+    
+    auto t1 = chrono::high_resolution_clock::now();
+    function_to_measure(fen, depth);
+    auto t2 = chrono::high_resolution_clock::now();
+
+    auto ms_int = chrono::duration_cast<chrono::milliseconds> (t2 - t1);
+
+    chrono::duration<double, std::milli> ms_double = t2 - t1;
+
+    cout << test_string;
+    cout << ms_double.count() << " ms" << endl;
+}
+
+int test() {
     SetConsoleOutputCP(65001);
    
-    /*
     // board <-> fen tests
     fen_test(false);
 
@@ -1814,16 +1869,22 @@ int main() {
 
     undo_move_test();
     
+    int depth = 4;
 
+    time_test("Move generation timing test \n Recursively generating all moves \n Depth " + std::to_string(depth) + " \n Time: ", "", depth, &move_generation_time_test);
+
+    time_test("Move generation timing test \n Stockfly Negamax \n Depth " + std::to_string(depth) + " \n Time: ", "", depth, &stockfly_negamax_time_test);
+
+    cout << separator << endl;
+
+    /*
     try {
-        move_generation_test();
+        move_generation_test(3);
     }
     catch (const std::invalid_argument& e) {
         cout << e.what();
     }
-    
+    */
     
     return 0;
 }
-
-*/

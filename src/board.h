@@ -44,6 +44,7 @@ public:
     bool is_threefold_repetition();
     bool can_castle(char, bool);
     void update_castling_rights(std::string, std::string, int, int);
+    void move_piece_to_empty_square(int, Piece*);
     Piece* move_piece_to(int, Piece*);
     void un_castle(std::string, bool);
     void castle(std::string, bool);

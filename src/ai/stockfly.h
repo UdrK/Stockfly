@@ -6,11 +6,12 @@
 class Stockfly : public Ai {
 private:
 	bool side;
+	int search_depth;
 	int material_imbalance(Board*);
-	int evaluate(Board*);
 	int negamax(int, int, int, Board*);
 public:
-	Stockfly(bool);
+	Stockfly(bool, int);
+	int evaluate(Board*);
 	std::vector<std::string> generate_moves(Board*);
 	std::string move(Board*);
 };

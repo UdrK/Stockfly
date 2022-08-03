@@ -186,17 +186,15 @@ void solitaire() {
 	while (true) {}
 }
 
-
 int main() {
 
 	std::string debug_fen = "2r1kr1b/1b2p2p/4Npp1/p3N3/P1RP4/1P6/1B3PPP/2R3K1 w";
 
 	Board* board = new Board("");
 
-	ai_game_loop(board, new Stockfly(false), true, 0);
+	ai_game_loop(board, new Stockfly(false, 3), true, 0);
 
 	while (true) {}
 
 	return 0;
 }
-
