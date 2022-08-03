@@ -7,6 +7,7 @@ in particular, chess is a zero-sum, deterministic, perfect information game.
 - Zero-sum: one's player advantage is the others' disadvantage, which implies that if a player is winning, their adversary is losing. In particular, in zero-sum games, `score(player_a) = -score(player_b)`;
 - Deterministic: the position (configuration of pieces on the board) that arises from a move is determined and, given a position, the same move will always lead to the same new position;
 - Perfect information: both players fully know the state of the game. No information is hidden.
+
 Such games can often be represented with a game tree. In such a tree, each node represents a different state of the game, and each arc represents a move that given a state leads to another. This 
 representation will be useful when implementing the algorithms that try to work out (search in the game tree) the best move available to the player.
 
@@ -120,3 +121,23 @@ Below we have a diagram showing the most important function calls that allow an 
 ### alpha-beta pruning
 
 ## Roadmap
+
+### The vision
+- [x] A working chessboard with working logic
+- [x] A simple, adversarial search based AI
+- [] A refined version of such an AI capable of giving chess beginners a little headache and capable of beating the previous version consistently
+- [] A GUI
+- [] A computer vision based solution to play the AI on a real-life chess board
+
+### How to get there
+
+As of now the AI lacks some optimization which can allow it to search deeper in the tree and in general play better:
+- An opening book, so the AI plays decent moves when the search would have to go too deep to actually understand what moves are good
+- Search optimizations to search deeper than 4 ply, including but not limited to: an heuristic to order moves from most likely best to least like best, a transposition table to avoid evaluating a position 
+already considered, quiescence search to mitigate the horizon problem, heuristics to make a better static evaluation
+- Rules aided playing for endgames
+
+With the regards to the GUI i plan on using python's chess library as an interface. I suspect move input would still be command line based but i'm ok with it.
+
+Finally for the computer vision part of the project i plan on using a webcam to gather a dataset and probably train some version of yolo to do the object detection and classification. I'm still unsure on how
+to transform this data into a FEN to feed to the engine.
