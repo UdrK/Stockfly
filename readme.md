@@ -125,9 +125,9 @@ Below we have a diagram showing the most important function calls that allow an 
 ### The vision
 - [x] A working chessboard with working logic
 - [x] A simple, adversarial search based AI
-- [] A refined version of such an AI capable of giving chess beginners a little headache and capable of beating the previous version consistently
-- [] A GUI
-- [] A computer vision based solution to play the AI on a real-life chess board
+- [ ] A refined version of such an AI capable of giving chess beginners a little headache and capable of beating the previous version consistently
+- [ ] A GUI
+- [ ] A computer vision based solution to play the AI on a real-life chess board
 
 ### How to get there
 
