@@ -11,7 +11,7 @@ Such games can often be represented with a game tree. In such a tree, each node 
 representation will be useful when implementing the algorithms that try to work out (search in the game tree) the best move available to the player.
 
 Here's an example of a partial game tree for a simplified version of chess.
-![Image of a game tree]()
+![Image of a game tree](https://github.com/UdrK/stockfly/blob/master/res/readme/tree_diagram_dark_theme.png?raw=true)
 
 ## Implementing Chess
 
@@ -111,7 +111,7 @@ For the AI to be able to find the best move, it needs to be able to search the g
 the game tree it's necessary to generate every possible response to each move generated and recursively keep going until a certain depth is reached.
 
 Below we have a diagram showing the most important function calls that allow an exhaustive game tree generation.
-![Game tree generation calls]()
+![Game tree generation calls](https://github.com/UdrK/stockfly/blob/master/res/readme/game_tree_generation.png?raw=true)
 
 ### The minimax algorithm
 
