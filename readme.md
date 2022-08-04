@@ -1,4 +1,4 @@
-# Stockfly
+﻿# Stockfly
 Stockfly aims to be a simple chess ai, maybe capable of beating the average 1000 elo player. The name is a pun that refers to stockfish, one of the best chess AI available today (fish eat flies).
 
 ## Bignami of game theory concerning chess
@@ -144,6 +144,8 @@ Min-player(state)
 	foreach move
 		new_state = state.move()
 		value = min(value, Max-player(new_state))
+
+	return value
 ```
 
 Let's consider the Max-player: the `foreach` loop tries every possible move available to the player. This yields a new game state (a new position on the board) from which the Min-player has to carry on playing.
@@ -157,6 +159,90 @@ by Min-player which performs a static evaluation of the position. When backtrack
 
 
 ### alpha-beta pruning
+
+Now consider the following tree:
+
+![Alpha-beta example tree](https://github.com/UdrK/stockfly/blob/master/res/readme/alpha_tree.png?raw=true)
+
+Note that nodes (positions) have been given names (letters). By solving the left subtree we find that Max-player will obtain a score of 4 by playing the "left" move, this is evident since, if Max plays "left", Min will play "right" to minimize the final game's score.
+Now consider the right subtree, in particular, consider the situation Min encounters when they evaluate the "left" move to give a score of 1. In this situation it's possible to leverage 2 facts to completely avoid evaluating the "right" move:
+
+- Max can obtain a score of 4 by playing "left" in the first position of the game
+- Min will not play "right" in the right subtree if that move's score is higher than 1 (because Min will always play the move that minimizes the score)
+
+Therefore, if Max plays "right" in the first position, Min can at least get a score of 1, if not better (for Min). This implies that Max will not play "right" regardless of the game's score after Max -> "right", Min -> "right". Therefore
+it's possible to skip that lines entire evaluation.
+
+This kind of optimization in tree searches is called pruning, and in particular this optimization is called alpha-beta pruning after the names of the parameters that are added to minimax to achive this behavior.
+
+The following is the minimax algorithm with alpha-beta pruning:
+
+```
+alpha-beta-Max-player(state, alpha, beta)
+	if (is_leaf(state))
+		return evaluation(state)
+
+	foreach move
+		new_state = state.move()
+		value = alpha-beta-Min-player(new_state, alpha, beta)
+		
+		if (value >= beta)
+			return beta
+
+		if (value > alpha)
+			alpha = value
+
+	return alpha
+
+alpha-beta-Min-player(state, alpha, beta)
+	if (is_leaf(state))
+		return evaluation(state)
+
+	foreach move
+		new_state = state.move()
+		value = alpha-beta-Max-player(new_state, alpha, beta)
+		
+		if (value <= alpha)
+			return alpha
+
+		if (value < beta)
+			beta = value
+
+	return beta
+```
+
+Similarly to minimax we have two mutually recursive functions. Alpha represents the "best" score achievable by Max. Beta, conversely, represents the "best" score achievable by Min.
+To get a sense of how the algorithm works, consider the tree above, and the following call stack, obtained from issuing `alpha-beta-Max-player(state=a, α=-∞, β=+∞)` with `a` the root node of the tree above:
+
+```
+Max(state=a, α=-∞, β=+∞)
+	// First iteration
+	score = Min(state=b, α=-∞, β=+∞)
+		// First iteration
+		score = Max(state=d, α=-∞, β=+∞) = 9
+		score = 9 <= α=-∞ ? No
+		score = 9 < β=+∞ ? Yes -> β=9
+		// Second iteration
+		score = Max(state=e, α=-∞, β=9) = 4
+		score = 4 <= α=-∞ ? No
+		score = 4 < β=9 ? Yes -> β=4
+		// Min for left subtree done
+		return β=4
+	= 4
+	score = 4 >= β=+∞ ? No
+	score = 4 >= α=-∞ ? Yes -> α=4
+	// Second iteration
+	score = Min(state=c, α=4, β=+∞)
+		// First iteration, here we have the pruning
+		score = Max(state=f, α=4, β=+∞) = 1
+		score = 1 <= α=4 ? Yes -> return α=4
+	= 4
+	// notice the last call of min only went through one iteration
+	score = 4 >= β=+∞ ? No
+	score = 4 > α=4 ? No
+	return α=4
+```
+
 
 ## Roadmap
 
