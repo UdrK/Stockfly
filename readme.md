@@ -164,14 +164,14 @@ Now consider the following tree:
 
 ![Alpha-beta example tree](https://github.com/UdrK/stockfly/blob/master/res/readme/alpha_beta_tree.png?raw=true)
 
-Note that nodes (positions) have been given names (letters). By solving the left subtree we find that Max-player will obtain a score of 4 by playing the "left" move, this is evident since, if Max plays "left", Min will play "right" to minimize the final game's score.
-Now consider the right subtree, in particular, consider the situation Min encounters when they evaluate the "left" move to give a score of 1. In this situation it's possible to leverage 2 facts to completely avoid evaluating the "right" move:
+Note that nodes (positions) have been given names (letters). By solving the left subtree we find that Max-player will obtain a score of 4 by playing the entering the 'b' position, this is evident since, if Max plays 'b', Min will play 'e' to minimize the final game's score.
+Now consider the right subtree, in particular, consider the situation Min encounters when they evaluate the 'f' position and get a score of 1. In this situation it's possible to leverage 2 facts to completely avoid evaluating 'g':
 
-- Max can obtain a score of 4 by playing "left" in the first position of the game
-- Min will not play "right" in the right subtree if that move's score is higher than 1 (because Min will always play the move that minimizes the score)
+- Max can obtain a score of 4 by playing 'b'
+- Min will not play 'g' in the right subtree if that position's score is higher than 1 (because Min will always play the move that minimizes the score)
 
-Therefore, if Max plays "right" in the first position, Min can at least get a score of 1, if not better (for Min). This implies that Max will not play "right" regardless of the game's score after Max -> "right", Min -> "right". Therefore
-it's possible to skip that lines entire evaluation.
+Therefore, if Max plays 'c' in the first position, Min can at least get a score of 1, if not better (for Min). This implies that Max will not play 'c' regardless of score of the 'g' position. Therefore
+it's possible to skip the evaluation of 'g'. Imagine 'g' isn't just a position, but an entire subtree, this can method can avoid a lot of computation.
 
 This kind of optimization in tree searches is called pruning, and in particular this optimization is called alpha-beta pruning after the names of the parameters that are added to minimax to achive this behavior.
 
