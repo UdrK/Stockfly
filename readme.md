@@ -162,7 +162,7 @@ by Min-player which performs a static evaluation of the position. When backtrack
 
 Now consider the following tree:
 
-![Alpha-beta example tree](https://github.com/UdrK/stockfly/blob/master/res/readme/alpha_tree.png?raw=true)
+![Alpha-beta example tree](https://github.com/UdrK/stockfly/blob/master/res/readme/alpha_beta_tree.png?raw=true)
 
 Note that nodes (positions) have been given names (letters). By solving the left subtree we find that Max-player will obtain a score of 4 by playing the "left" move, this is evident since, if Max plays "left", Min will play "right" to minimize the final game's score.
 Now consider the right subtree, in particular, consider the situation Min encounters when they evaluate the "left" move to give a score of 1. In this situation it's possible to leverage 2 facts to completely avoid evaluating the "right" move:
