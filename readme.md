@@ -118,6 +118,44 @@ Below we have a diagram showing the most important function calls that allow an 
 
 ### The minimax algorithm
 
+The minimax algorithm searches the game tree in a depth-first fashion for the best move. The algorithm traverses the tree to the leafs or until reaching a depth limit and then returns a static evaluation of the game's state.
+This evaluation is used to find the best move: one player will choose the move that yelds the maximum evaluation, and the other player will choose the move that yelds the minimum, alternating each other. To achieve this
+the algorithm uses two mutually recursive functions. Forgetting about depth restrictions, the algorithm is the following:
+
+```
+Max-player(state)
+	if (is_leaf(state))
+		return evaluation(state)
+
+	value = - infinity
+
+	foreach move
+		new_state = state.move()
+		value = max(value, Min-player(new_state))
+
+	return value
+
+Min-player(state)
+	if (is_leaf(state))
+		return evaluation(state)
+
+	value = + infinity
+
+	foreach move
+		new_state = state.move()
+		value = min(value, Max-player(new_state))
+```
+
+Let's consider the Max-player: the `foreach` loop tries every possible move available to the player. This yields a new game state (a new position on the board) from which the Min-player has to carry on playing.
+The Min-player will choose the best move for himself, the one that minimizes the score and return that score to the Max-player. Max-player's job will be to choose the move that maximizes the score. This keeps happening
+for the entire height of the tree until reaching the leafs that can only be statically evaluated. If the game is ended it's easy to assign a good score for a win, a bad score for a loss and 0 to a draw.
+
+Below an example of how minimax works. In chess terms consider that each node of the tree corresponds to a position on the board. Each arc corresponds to a move. The score associated to the leafs of the tree is calculated
+by Min-player which performs a static evaluation of the position. When backtracking the recursion selects the main line that is highlighted in green at the end of the animation.
+
+![Minimax animation](https://github.com/UdrK/stockfly/blob/master/res/readme/minimax_optimized.gif?raw=true)
+
+
 ### alpha-beta pruning
 
 ## Roadmap
