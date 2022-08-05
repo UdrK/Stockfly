@@ -351,69 +351,269 @@ bool Board::is_promotion(std::string players_piece_type, int destination_square_
 }
 
 // is square_index attacked by side player
-bool Board::is_square_attacked(int square_index, bool side) {
+std::vector<int> Board::is_square_attacked_by(int square_index, bool side) {
 
-    // side is used in the code to verify if !side attacks the square, but the method is called to verify is side attacks the square
-    // maybe????
-    side = !side;
+    std::vector<int> attackers_positions;
 
-    // if piace was a king, would it see an enemy king or queen? if yes piece is attacked
-    std::vector<int> king_movement_squares = Piece::piece_movement(this, square_index, side, true, true, true);
-    for (int square : king_movement_squares) {
-        if (Board::piece_at(square)) {
-            std::string piece_type = Board::piece_at(square)->get_appearance(true);
-            if (Board::piece_at(square)->side != side && piece_type == "Q" || piece_type == "K")
-                return true;
+    // position = (8 * rank) + file
+    int file = square_index % 8;
+    int rank = ((square_index - file) / 8);
+
+    // how many ranks up/down files left/right ?
+    int ranks_up = rank;
+    int ranks_down = (7 - rank);
+    int files_left = file;
+    int files_right = (7 - file);
+
+    bool nwe_n_diag = true;     // north-west to east - nort diagonal
+    bool n_orth = true;         // north orthogonal
+    bool new_n_diag = true;     // north-east to west - north diagonal
+    bool west_orth = true;      // west orthogonal
+    bool east_orth = true;      // east orthogonal
+    bool nwe_s_diag = true;     // nort-west to east - south diagonal
+    bool s_orth = true;         // south orthogonal
+    bool new_s_diag = true;     // nort-east to west - south diagonal
+
+    // finding out if Kings, Queens, Rooks, or Pawns attack the square
+    // first we calculate sections of "north-bound" pieces trajectories
+    for (int i = 0; i < ranks_up; i++) {
+
+        // first the diagonal from the top left towards the piece
+        if (i < files_left && nwe_n_diag) {
+            int nort_west_east_diag = square_index - ((i + 1) * 9);
+            // if there is a piece
+            if (Board::board[nort_west_east_diag] != NULL) {
+                // no point in looking the squares behind it
+                nwe_n_diag = false;
+                Piece* piece = Board::piece_at(nort_west_east_diag);
+                std::string piece_type = piece->get_appearance(true);
+
+                // if enemy piece
+                if (piece->side == side) {
+                    // since diagonal only Queen Bishop and Pawn or King (if close) can attack the square
+                    if (piece_type == "Q" || piece_type == "B") {
+                        attackers_positions.push_back(nort_west_east_diag);
+                    } else if (i==0 && ((!side && piece_type == "P") || piece_type == "K"))
+                        attackers_positions.push_back(nort_west_east_diag);
+                }
+            }
+        }
+
+        // then the orthogonal "file" from up to the piece
+        if (n_orth) {
+            int north_file = square_index - ((i + 1) * 8);
+
+            if (Board::board[north_file] != NULL) {
+                n_orth = false;
+                Piece* piece = Board::piece_at(north_file);
+                std::string piece_type = piece->get_appearance(true);
+
+                // if enemy piece
+                if (piece->side == side) {
+                    // since diagonal only Queen, Rook can attack the square
+                    if (piece_type == "Q" || piece_type == "R") {
+                        attackers_positions.push_back(north_file);
+                    } else if (i == 0 && piece_type == "K")
+                        attackers_positions.push_back(north_file);
+                }
+            }
+        }
+
+        // then the diagonal from the top right to the piece
+        if (i < files_right && new_n_diag) {
+            int north_east_west_diag = square_index - ((i + 1) * 7);
+
+            if (Board::board[north_east_west_diag] != NULL) {
+                // no point in looking the squares behind it
+                new_n_diag = false;
+                Piece* piece = Board::piece_at(north_east_west_diag);
+                std::string piece_type = piece->get_appearance(true);
+
+                // if enemy piece
+                if (piece->side == side) {
+                    // since diagonal only Queen Bishop and Pawn or King (if close) can attack the square
+                    if (piece_type == "Q" || piece_type == "B") {
+                        attackers_positions.push_back(north_east_west_diag);
+                    }
+                    else if (i == 0 && ((!side && piece_type == "P") || piece_type == "K"))
+                        attackers_positions.push_back(north_east_west_diag);
+                }
+            }
         }
     }
 
-    // if piece was a queen/rook would it see an enemy queen/rook ? if yes piece is attacked
-    std::vector<int> rook_movement_squares = Piece::piece_movement(this, square_index, side, false, false, true);
-    for (int square : rook_movement_squares) {
-        if (Board::piece_at(square)) {
-            std::string piece_type = Board::piece_at(square)->get_appearance(true);
-            if (Board::piece_at(square)->side != side && piece_type == "Q" || piece_type == "R")
-                return true;
+    // (left of piece)
+    for (int i = 0; i < files_left && west_orth; i++) {
+        int west_file = square_index - ((i + 1) * 1);
+
+        if (Board::board[west_file] != NULL) {
+            west_orth = false;
+            Piece* piece = Board::piece_at(west_file);
+            std::string piece_type = piece->get_appearance(true);
+
+            // if enemy piece
+            if (piece->side == side) {
+                // since diagonal only Queen, Rook can attack the square
+                if (piece_type == "Q" || piece_type == "R") {
+                    attackers_positions.push_back(west_file);
+                }
+                else if (i == 0 && piece_type == "K")
+                    attackers_positions.push_back(west_file);
+            }
         }
     }
 
-    // if piece was a queen/bishop would it see an enemy queen/bishop ? if yes piece is attacked
-    std::vector<int> bishop_movement_squares = Piece::piece_movement(this, square_index, side, false, true, false);
-    for (int square : bishop_movement_squares) {
-        if (Board::piece_at(square)) {
-            std::string piece_type = Board::piece_at(square)->get_appearance(true);
-            if (Board::piece_at(square)->side != side && piece_type == "Q" || piece_type == "B")
-                return true;
+    // (right of piece)
+    for (int i = 0; i < files_right && east_orth; i++) {
+        int east_file = square_index + ((i + 1) * 1);
+
+        if (Board::board[east_file] != NULL) {
+            east_orth = false;
+            Piece* piece = Board::piece_at(east_file);
+            std::string piece_type = piece->get_appearance(true);
+
+            // if enemy piece
+            if (piece->side == side) {
+                // since diagonal only Queen, Rook can attack the square
+                if (piece_type == "Q" || piece_type == "R") {
+                    attackers_positions.push_back(east_file);
+                }
+                else if (i == 0 && piece_type == "K")
+                    attackers_positions.push_back(east_file);
+            }
         }
     }
 
-    // if piece was a knight would it see an enemy knight ? if yes piece is attacked
-    std::vector<int> knight_movement_squares = Piece::knight_movement(this, square_index, side);
-    for (int square : knight_movement_squares) {
-        if (Board::piece_at(square)) {
-            std::string piece_type = Board::piece_at(square)->get_appearance(true);
-            if (Board::piece_at(square)->side != side && piece_type == "N")
-                return true;
+    // same as up, but down
+    for (int i = 0; i < ranks_down; i++) {
+
+        if (i < files_left && nwe_s_diag) {
+            int sotuh_west_east_diag = square_index + ((i + 1) * 7);
+
+            if (Board::board[sotuh_west_east_diag] != NULL) {
+                // no point in looking the squares behind it
+                nwe_s_diag = false;
+                Piece* piece = Board::piece_at(sotuh_west_east_diag);
+                std::string piece_type = piece->get_appearance(true);
+
+                // if enemy piece
+                if (piece->side == side) {
+                    // since diagonal only Queen Bishop and Pawn or King (if close) can attack the square
+                    if (piece_type == "Q" || piece_type == "B") {
+                        attackers_positions.push_back(sotuh_west_east_diag);
+                    }
+                    else if (i == 0 && ((side && piece_type == "P") || piece_type == "K"))
+                        attackers_positions.push_back(sotuh_west_east_diag);
+                }
+            }
+        }
+
+        if (s_orth) {
+            int south_file = square_index + ((i + 1) * 8);
+
+            if (Board::board[south_file] != NULL) {
+                s_orth = false;
+                Piece* piece = Board::piece_at(south_file);
+                std::string piece_type = piece->get_appearance(true);
+
+                // if enemy piece
+                if (piece->side == side) {
+                    // since diagonal only Queen, Rook can attack the square
+                    if (piece_type == "Q" || piece_type == "R") {
+                        attackers_positions.push_back(south_file);
+                    }
+                    else if (i == 0 && piece_type == "K")
+                        attackers_positions.push_back(south_file);
+                }
+            }
+        }
+
+        if (i < files_right && new_s_diag) {
+            int south_east_west_diag = square_index + ((i + 1) * 9);
+
+            if (Board::board[south_east_west_diag] != NULL) {
+                // no point in looking the squares behind it
+                new_s_diag = false;
+                Piece* piece = Board::piece_at(south_east_west_diag);
+                std::string piece_type = piece->get_appearance(true);
+
+                // if enemy piece
+                if (piece->side == side) {
+                    // since diagonal only Queen Bishop and Pawn or King (if close) can attack the square
+                    if (piece_type == "Q" || piece_type == "B") {
+                        attackers_positions.push_back(south_east_west_diag);
+                    }
+                    else if (i == 0 && ((side && piece_type == "P") || piece_type == "K"))
+                        attackers_positions.push_back(south_east_west_diag);
+                }
+            }
         }
     }
 
-    // if piece was a pawn would it attack an enemy pawn ? if yes piece is attacked
-    int side_multiplier = side ? -1 : 1;
-    int take_square_one = square_index + side_multiplier * 7;
-    int take_square_two = square_index + side_multiplier * 9;
-    std::vector<int> pawn_attacked_squares = { take_square_one, take_square_two };
-    for (int square : pawn_attacked_squares) {
-        if (Board::piece_at(square) && square > 0 && square < 64) {
-            std::string piece_type = Board::piece_at(square)->get_appearance(true);
-            if (Board::piece_at(square)->side != side && piece_type == "P")
-                return true;
+    // finding out if knights attack the square
+    // if at least 2 ranks north of the piece
+    if (rank > 1) {
+
+        // if enough room (at least 1 file) to the left
+        if (file > 0) {
+            Piece* piece = Board::board[square_index - 17];
+            if (piece && piece->side == side && piece->get_appearance(true) == "N")
+                attackers_positions.push_back(square_index - 17);
+        }
+
+        // same but right
+        if (file < 7) {
+            Piece* piece = Board::board[square_index - 15];
+            if (piece && piece->side == side && piece->get_appearance(true) == "N")
+                attackers_positions.push_back(square_index - 15);
         }
     }
 
-    return false;
+    // if at least 1 rank north of the piece
+    if (rank > 0) {
+        if (file > 1) {
+            Piece* piece = Board::board[square_index - 10];
+            if (piece && piece->side == side && piece->get_appearance(true) == "N")
+                attackers_positions.push_back(square_index - 10);
+        }
+        if (file < 6) {
+            Piece* piece = Board::board[square_index - 6];
+            if (piece && piece->side == side && piece->get_appearance(true) == "N")
+                attackers_positions.push_back(square_index - 6);
+        }
+    }
+
+    //  same but south
+    if (rank < 7) {
+        if (file > 1) {
+            Piece* piece = Board::board[square_index + 6];
+            if (piece && piece->side == side && piece->get_appearance(true) == "N")
+                attackers_positions.push_back(square_index + 6);
+        }
+        if (file < 6) {
+            Piece* piece = Board::board[square_index + 10];
+            if (piece && piece->side == side && piece->get_appearance(true) == "N")
+                attackers_positions.push_back(square_index + 10);
+        }
+    }
+
+    if (rank < 6) {
+        if (file > 0) {
+            Piece* piece = Board::board[square_index + 15];
+            if (piece && piece->side == side && piece->get_appearance(true) == "N")
+                attackers_positions.push_back(square_index + 15);
+        }
+        if (file < 7) {
+            Piece* piece = Board::board[square_index + 17];
+            if (piece && piece->side == side && piece->get_appearance(true) == "N")
+                attackers_positions.push_back(square_index + 17);
+        }
+    }
+
+    return attackers_positions;
 }
 
-bool Board::is_move_legal(Piece* piece, int destination_square) {
+bool Board::is_move_legal(Piece* piece, int destination_square, bool check_pseudo_legality) {
 
     bool is_legal = false;
 
@@ -421,37 +621,40 @@ bool Board::is_move_legal(Piece* piece, int destination_square) {
         return is_legal;
     }
 
-    std::vector<int> pseudo_legal_move_list = piece->pseudo_legal_moves(this);
+        std::vector<int> pseudo_legal_move_list = piece->pseudo_legal_moves(this);
     // if move is pseudolegal, i check if the king would be in check after the move
-    if (std::count(pseudo_legal_move_list.begin(), pseudo_legal_move_list.end(), destination_square)) {
-
-        // Code to "simulate" the move in order to verify if the king would end in check    ----------
-        int backup_en_passant_file = Board::en_passant_file;
-        int backup_piece_original_position = piece->position;
-
-        Piece* backup_taken_piece = Board::move_piece_to(destination_square, piece);
-
-        int king_square = Board::get_king(piece->side)->position;
-        // if AFTER THE MOVE the king is NOT in check, then move is LEGAL
-        if(!Board::is_square_attacked(king_square, !piece->side))
-            is_legal = true;
-        
-        // undoing move
-        Board::en_passant_file = backup_en_passant_file;
-
-        // moving piece back
-        Board::board[backup_piece_original_position] = piece;
-        piece->position = backup_piece_original_position;
-
-        // moving taken piece back
-        Board::board[destination_square] = NULL;
-        if (backup_taken_piece) {
-            Board::board[backup_taken_piece->position] = backup_taken_piece;
-            std::vector<Piece*>& enemy_pieces = piece->side ? Board::black_pieces : Board::white_pieces;
-            enemy_pieces.push_back(backup_taken_piece);
-        }
-
+    if (check_pseudo_legality) {
+        if (!std::count(pseudo_legal_move_list.begin(), pseudo_legal_move_list.end(), destination_square))
+            return false;
     }
+
+    // Code to "simulate" the move in order to verify if the king would end in check    ----------
+    int backup_en_passant_file = Board::en_passant_file;
+    int backup_piece_original_position = piece->position;
+
+    Piece* backup_taken_piece = Board::move_piece_to(destination_square, piece);
+
+    int king_square = Board::get_king(piece->side)->position;
+    // if AFTER THE MOVE the king is NOT in check, then move is LEGAL
+    
+    if(Board::is_square_attacked_by(king_square, !piece->side).size()==0)
+        is_legal = true;
+    
+    // undoing move
+    Board::en_passant_file = backup_en_passant_file;
+
+    // moving piece back
+    Board::board[backup_piece_original_position] = piece;
+    piece->position = backup_piece_original_position;
+
+    // moving taken piece back
+    Board::board[destination_square] = NULL;
+    if (backup_taken_piece) {
+        Board::board[backup_taken_piece->position] = backup_taken_piece;
+        std::vector<Piece*>& enemy_pieces = piece->side ? Board::black_pieces : Board::white_pieces;
+        enemy_pieces.push_back(backup_taken_piece);
+    }
+
     return is_legal;
 }
 
@@ -461,11 +664,11 @@ bool Board::is_mate(bool side) {
     Piece* king = side ? Board::black_king : Board::white_king;
     std::vector<Piece*>& pieces = side ? Board::black_pieces : Board::white_pieces;
 
-    if (king->is_attacked(this)) {
+    if (king->is_attacked(this).size()!=0) {
         for (Piece* piece : pieces) {
             std::vector<int> moves = piece->pseudo_legal_moves(this);
             for (int move : moves) {
-                if (is_move_legal(piece, move)) {
+                if (is_move_legal(piece, move, false)) {
                     return false;
                 }
             }
@@ -502,13 +705,13 @@ bool Board::is_stalemate(bool side) {
     std::vector<Piece*>& pieces = side ? Board::black_pieces : Board::white_pieces;
 
     // if enemy king not in check
-    if (!king->is_attacked(this)) {
+    if (king->is_attacked(this).size()==0) {
         // if legal moves, not stalemate, else stalemate
         for (Piece* piece : pieces) {
             std::vector<int> moves = piece->pseudo_legal_moves(this);
             if (moves.size()>0) {
                 for (int move : moves) {
-                    if (is_move_legal(piece, move)) {
+                    if (is_move_legal(piece, move, false)) {
                         return false;
                     }
                 }
@@ -535,7 +738,7 @@ bool Board::can_castle(char castle_type, bool side_turn) {
             // if no pieces in the way
             if (Board::board[61] == NULL && Board::board[62] == NULL) {
                 // if squares aren't attacked (including king isn't in check)
-                if (!Board::is_square_attacked(60, !side_turn) && !Board::is_square_attacked(61, !side_turn) && !Board::is_square_attacked(62, !side_turn)) {
+                if (Board::is_square_attacked_by(60, !side_turn).size()==0 && Board::is_square_attacked_by(61, !side_turn).size() == 0 && Board::is_square_attacked_by(62, !side_turn).size() == 0) {
                     return true;
                 }
             }
@@ -547,7 +750,7 @@ bool Board::can_castle(char castle_type, bool side_turn) {
             // if no pieces in the way
             if (Board::board[59] == NULL && Board::board[58] == NULL && Board::board[57] == NULL) {
                 // if squares aren't attacked (including king isn't in check)
-                if (!Board::is_square_attacked(60, !side_turn) && !Board::is_square_attacked(59, !side_turn) && !Board::is_square_attacked(58, !side_turn)) {
+                if (Board::is_square_attacked_by(60, !side_turn).size() == 0 && Board::is_square_attacked_by(59, !side_turn).size() == 0 && Board::is_square_attacked_by(58, !side_turn).size() == 0) {
                     return true;
                 }
             }
@@ -557,7 +760,7 @@ bool Board::can_castle(char castle_type, bool side_turn) {
     if (castle_type == 'K' && !side_turn) {
         if (Board::black_king_side_castle) {
             if (Board::board[5] == NULL && Board::board[6] == NULL) {
-                if (!Board::is_square_attacked(4, !side_turn) && !Board::is_square_attacked(5, !side_turn) && !Board::is_square_attacked(6, !side_turn)) {
+                if (Board::is_square_attacked_by(4, !side_turn).size() == 0 && Board::is_square_attacked_by(5, !side_turn).size() == 0 && Board::is_square_attacked_by(6, !side_turn).size() == 0) {
                     return true;
                 }
             }
@@ -567,7 +770,7 @@ bool Board::can_castle(char castle_type, bool side_turn) {
     if (castle_type == 'Q' && !side_turn) {
         if (Board::black_queen_side_castle) {
             if (Board::board[3] == NULL && Board::board[2] == NULL && Board::board[1] == NULL) {
-                if (!Board::is_square_attacked(4, !side_turn) && !Board::is_square_attacked(3, !side_turn) && !Board::is_square_attacked(2, !side_turn)) {
+                if (Board::is_square_attacked_by(4, !side_turn).size() == 0 && Board::is_square_attacked_by(3, !side_turn).size() == 0 && Board::is_square_attacked_by(2, !side_turn).size() == 0) {
                     return true;
                 }
             }
@@ -695,7 +898,9 @@ Piece* Board::move_piece_to(int position, Piece* piece) {
     return taken_piece;
 }
 
-void Board::castle(std::string move, bool side_turn) {
+void Board::castle(std::string move) {
+
+    bool side_turn = Board::side_turn;
 
     if ((side_turn && (move == "O-O" || move == "O-O-O")) || (!side_turn && (move == "o-o" || move == "o-o-o"))) {
 
@@ -858,6 +1063,92 @@ Piece* Board::promotion(std::string move, bool player) {
     return promote_to;
 }
 
+void Board::force_move(Ply* ply) {
+    std::string move_notation = ply->get_move_notation();
+
+    Piece* ply_moving_piece = NULL;
+    Piece* ply_taken_piece = NULL;
+    Piece* ply_promotion_piece = NULL;
+    int ply_origin_square = -1;
+    int ply_destination_square = -1;
+    int ply_taken_square = -1;
+    bool castle = false;
+    bool promotion = false;
+
+    // these need to be saved before making the move:
+    ply->set_castle_rights(Board::white_king_side_castle, Board::white_queen_side_castle, Board::black_king_side_castle, Board::black_queen_side_castle);
+    ply->set_en_passant_file(Board::en_passant_file);
+
+    try {
+        //move_notation == "O-O" || move_notation == "O-O-O" || move_notation == "o-o" || move_notation == "o-o-o"
+        if (move_notation[0] == 'O' || move_notation[0] == 'o') {
+            Board::castle(move_notation);
+            // updating en passant
+            Board::en_passant_file = 8;
+            // setting ply parameters
+            castle = true;
+        }
+        else {
+            int origin_square_index = coordinates_to_board_index(move_notation.substr(1, 2));
+            int destination_square_index = coordinates_to_board_index(move_notation.substr(4, 2));
+
+            ply_origin_square = origin_square_index;
+            ply_destination_square = destination_square_index;
+
+            Piece* players_piece = Board::board[origin_square_index];
+            Piece* taken_piece = Board::board[destination_square_index];
+            ply_moving_piece = players_piece;
+
+            std::string players_piece_type = players_piece->get_appearance(true);
+            std::string taken_piece_type = taken_piece != NULL ? Board::board[destination_square_index]->get_appearance(true) : "";
+
+            // en passant is dealt with in here
+            ply_taken_piece = Board::move_piece_to(destination_square_index, players_piece);
+
+            if (ply_taken_piece)
+                ply_taken_square = ply_taken_piece->position;
+
+            // if move is promotion, promote, update of pieces list is made in promotion
+            if (Board::is_promotion(players_piece_type, destination_square_index)) {
+                ply_promotion_piece = Board::promotion(move_notation, side_turn);
+                promotion = true;
+            }
+
+            // updating castling rights --------
+            // done only here since castling updates the rights on its own
+            // once both players can't castle, there's no need to try to update their rights
+            if (Board::white_king_side_castle || Board::black_king_side_castle || Board:: white_queen_side_castle || Board::black_queen_side_castle)
+                Board::update_castling_rights(players_piece_type, taken_piece_type, origin_square_index, destination_square_index);
+
+            // updating en passant
+            // if move is pawn 2 forward then en passant is possible
+            if (players_piece_type == "P" && abs(destination_square_index - origin_square_index) > 15) {
+                int file = origin_square_index % 8;
+                Board::en_passant_file = file;
+            }
+            else {
+                Board::en_passant_file = 8;
+            }
+        }
+        // after a move has been made: change sides_turn set ply's parameters
+        Board::side_turn = !side_turn;
+        ply->set_moving_piece(ply_moving_piece);
+        ply->set_taken_piece(ply_taken_piece);
+        ply->set_promotion_piece(ply_promotion_piece);
+        ply->set_origin_square(ply_origin_square);
+        ply->set_destination_square(ply_destination_square);
+        ply->set_taken_square(ply_taken_square);
+        ply->set_castle(castle);
+        ply->set_promotion(promotion);
+
+        // this has to be done only when the move is actually made, not when the move is "tried" by the AI
+        // positions_fens.push_back(Board::get_fen(true));
+    }
+    catch (const std::invalid_argument& e) {
+        throw e;
+    }
+}
+
 // Easy Move Notation EMN
 // basically normal algebraic notation but indicating origin square and piece to make it easier to parse
 // also doesnt distinguish between takes and just move
@@ -880,8 +1171,9 @@ void Board::move(Ply* ply) {
     ply->set_en_passant_file(Board::en_passant_file);
 
     try {
-        if (move_notation == "O-O" || move_notation == "O-O-O" || move_notation == "o-o" || move_notation == "o-o-o") {
-            Board::castle(move_notation, Board::side_turn);
+        //move_notation == "O-O" || move_notation == "O-O-O" || move_notation == "o-o" || move_notation == "o-o-o"
+        if (move_notation[0] == 'O' || move_notation[0] == 'o') {
+            Board::castle(move_notation);
             // updating en passant
             Board::en_passant_file = 8;
             // setting ply parameters
@@ -911,7 +1203,7 @@ void Board::move(Ply* ply) {
             if (players_piece->side != Board::side_turn)
                 throw std::invalid_argument("Piece isn't on the player's side");
             // exit if move is illegal
-            if (!is_move_legal(players_piece, destination_square_index))
+            if (!is_move_legal(players_piece, destination_square_index, true))
                 throw std::invalid_argument("Illegal move (king must be in check ?)");
 
             // en passant is dealt with in here
@@ -995,7 +1287,7 @@ void Board::undo_move(Ply* ply) {
         }
         
         if (ply->is_promotion()) {
-            // if promotion remove the new piece from the list of pieces
+            // if promotion remove the new piece from the list of pieces and add the pawn
             Piece* promotion_piece = ply->get_promotion_piece();
             std::vector<Piece*>& pieces = ply->get_player() ? Board::white_pieces : Board::black_pieces;
             for (int i = 0; i < pieces.size(); i++) {
@@ -1005,6 +1297,8 @@ void Board::undo_move(Ply* ply) {
                 }
             }
             delete promotion_piece;
+
+            pieces.push_back(players_piece);
         }
     }
     Board::side_turn = !Board::side_turn;

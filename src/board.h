@@ -36,8 +36,8 @@ public:
 
     // Chess logic
     bool is_promotion(std::string, int);
-    bool is_square_attacked(int, bool);
-    bool is_move_legal(Piece*, int);
+    std::vector<int> is_square_attacked_by(int, bool);
+    bool is_move_legal(Piece*, int, bool);
     bool is_mate(bool);
     bool is_draw_by_insufficient_material();
     bool is_stalemate(bool);
@@ -47,8 +47,9 @@ public:
     void move_piece_to_empty_square(int, Piece*);
     Piece* move_piece_to(int, Piece*);
     void un_castle(std::string, bool);
-    void castle(std::string, bool);
+    void castle(std::string);
     Piece* promotion(std::string, bool);
+    void force_move(Ply*);
     void move(Ply*);
     void undo_move(Ply*);
 

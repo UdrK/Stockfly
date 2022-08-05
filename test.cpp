@@ -883,7 +883,7 @@ void is_attacked_test() {
     for (int i = 0; i < fens.size(); i++) {
         Board* b = new Board(fens[i]);
         if (i < 3) {
-            if (!b->piece_at(coordinates_to_board_index("d4"))->is_attacked(b)) {
+            if (b->piece_at(coordinates_to_board_index("d4"))->is_attacked(b).size()==0) {
                 correct_counter++;
             }
             else {
@@ -891,7 +891,7 @@ void is_attacked_test() {
             }
         }
         else {
-            if (b->piece_at(coordinates_to_board_index("d4"))->is_attacked(b)) {
+            if (b->piece_at(coordinates_to_board_index("d4"))->is_attacked(b).size()!=0) {
                 correct_counter++;
             }
             else {
@@ -940,7 +940,7 @@ void is_move_legal_test() {
     for (int i = 0; i < fens.size(); i++) {
         Board* b = new Board(fens[i]);
         if (i < 6) {
-            if (!b->is_move_legal(b->piece_at(moves[i].first), moves[i].second)) {
+            if (!b->is_move_legal(b->piece_at(moves[i].first), moves[i].second, true)) {
                 correct_counter++;
             }
             else {
@@ -948,7 +948,7 @@ void is_move_legal_test() {
             }
         }
         else {
-            if (b->is_move_legal(b->piece_at(moves[i].first), moves[i].second)) {
+            if (b->is_move_legal(b->piece_at(moves[i].first), moves[i].second, true)) {
                 correct_counter++;
             }
             else {
@@ -1292,7 +1292,7 @@ void mate_test() {
             board->set_player(sides[i]);
             board->move(p);
             Piece* enemy_king = board->get_king(!sides[i]);
-            if (enemy_king->is_attacked(board) && board->is_mate(sides[i])) {
+            if (enemy_king->is_attacked(board).size()!=0 && board->is_mate(sides[i])) {
                 correct_counter++;
             }
             else if (fens[i] == "rn1qk2r/pbpp1pQp/1p3n2/4p3/4P3/bP6/P1PP1PPP/RN2KBNR") {
@@ -1749,22 +1749,17 @@ void move_generation_test(int depth) {
 
 int recursive_move_generation(Ai* ai, int depth, Board* board) {
     if (depth == 0) {
-        ai->evaluate(board);
+        //ai->evaluate(board);
         return 1;
     }
 
     std::vector<std::string> moves = ai->generate_moves(board);
+
     int res = 0;
 
     for (std::string move : moves) {
         Ply* p = new Ply(move, board->get_player());
-        try {
-            board->move(p);
-        }
-        catch (const std::invalid_argument& e) {
-            delete p;
-            continue;
-        }
+        board->force_move(p);
         res += recursive_move_generation(ai, depth - 1, board);
         board->undo_move(p);
         delete p;
@@ -1778,7 +1773,8 @@ void move_generation_time_test(std::string fen, int depth) {
     Board* board = new Board(fen);
     Ai* ai = new Stockfly(true, depth);
 
-    recursive_move_generation(ai, depth, board);
+    int positions = recursive_move_generation(ai, depth, board);
+    cout << "Positions evaluated: " << positions << endl;
 }
 
 void stockfly_negamax_time_test(std::string fen, int depth) {
@@ -1800,11 +1796,12 @@ void time_test(std::string test_string, std::string fen, int depth, void (*funct
 
     cout << test_string;
     cout << ms_double.count() << " ms" << endl;
+    
 }
 
-int test() {
+int main() {
     SetConsoleOutputCP(65001);
-   
+    /*
     // board <-> fen tests
     fen_test(false);
 
@@ -1868,12 +1865,15 @@ int test() {
     fen_undo_move_test();
 
     undo_move_test();
-    
-    int depth = 4;
+    */
+    int depth = 3;
+    std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq 8";
+    //fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ 8";
+    //fen = "";
 
-    time_test("Move generation timing test \n Recursively generating all moves \n Depth " + std::to_string(depth) + " \n Time: ", "", depth, &move_generation_time_test);
+    time_test("Move generation timing test \n Recursively generating all moves \n Depth " + std::to_string(depth) + " \n Time: ", fen, depth, &move_generation_time_test);
 
-    time_test("Move generation timing test \n Stockfly Negamax \n Depth " + std::to_string(depth) + " \n Time: ", "", depth, &stockfly_negamax_time_test);
+    //time_test("Move generation timing test \n Stockfly Negamax \n Depth " + std::to_string(depth) + " \n Time: ", fen, depth, &stockfly_negamax_time_test);
 
     cout << separator << endl;
 

@@ -64,7 +64,7 @@ void game_loop(Board* board, int turn) {
 				}
 				else {
 					Piece* enemy_king = board->get_king(!side_turn);
-					if (enemy_king->is_attacked(board)) {
+					if (enemy_king->is_attacked(board).size()!=0) {
 						if (board->is_mate(side_turn)) {
 							mate = true;
 							system("cls");
@@ -144,7 +144,7 @@ void ai_game_loop(Board* board, Ai* ai, bool player_side, int turn) {
 				}
 				else {
 					Piece* enemy_king = board->get_king(!side_turn);
-					if (enemy_king->is_attacked(board)) {
+					if (enemy_king->is_attacked(board).size()!=0) {
 						if (board->is_mate(side_turn)) {
 							mate = true;
 							system("cls");
@@ -186,7 +186,7 @@ void solitaire() {
 	while (true) {}
 }
 
-int main() {
+int loop() {
 
 	std::string debug_fen = "2r1kr1b/1b2p2p/4Npp1/p3N3/P1RP4/1P6/1B3PPP/2R3K1 w";
 

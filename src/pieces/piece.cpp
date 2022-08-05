@@ -79,8 +79,9 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
         }
     }
 
-    // orthogonal rank-like possible moves (left of piece)
+    // orthogonal rank-like possible moves 
     if (orthogonal) {
+        // (left of piece)
         for (int i = 0; i < files_left && west_orth; i++) {
             int west_file = position - ((i + 1) * 1);
             if ((board->piece_at(west_file) == NULL) ||
@@ -91,10 +92,8 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
                 west_orth = false;
             }
         }
-    }
 
-    // (right of piece)
-    if (orthogonal) {
+        // (right of piece)
         for (int i = 0; i < files_right && east_orth; i++) {
             int east_file = position + ((i + 1) * 1);
             if ((board->piece_at(east_file) == NULL) ||
@@ -279,8 +278,8 @@ std::vector<int> Piece::pawn_movement(Board* board, int position, bool side) {
     return list;
 }
 
-bool Piece::is_attacked(Board* board) {
-    return board->is_square_attacked(Piece::position, !Piece::side);
+std::vector<int> Piece::is_attacked(Board* board) {
+    return board->is_square_attacked_by(Piece::position, !Piece::side);
 }
 
 std::string Piece::get_appearance(bool side_agnostic) {

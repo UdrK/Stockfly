@@ -17,7 +17,7 @@ public:
     std::vector<int> static knight_movement(Board*, int, bool);
     std::vector<int> static pawn_movement(Board*, int, bool);
 
-    bool is_attacked(Board*);
+    std::vector<int> is_attacked(Board*);
     virtual std::vector<int> pseudo_legal_moves(Board*) = 0;  // method that returns a list of indeces of squares on which the piece can move
 
     // Chess I/O

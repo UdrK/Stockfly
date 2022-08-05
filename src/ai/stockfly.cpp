@@ -67,35 +67,37 @@ std::vector<std::string> Stockfly::generate_moves(Board* board) {
 
 	for (Piece* p : pieces) {
 		std::vector<int> moves = p->pseudo_legal_moves(board);
+		bool is_p_pawn = p->get_appearance(true) == "P";
 		for (int move : moves) {
-			// does not check if move is legal, we let that to board->move 
-			std::string str_move = piece_and_position_to_move(p, move);
+			//if (board->is_move_legal(p, move, false)) {
+				// does not check if move is legal, we let that to board->move 
+				std::string str_move = piece_and_position_to_move(p, move);
 			
-			// generate promotions
-			if (p->get_appearance(true) == "P" && abs((64 * promotion_multiplier) - move) >= 56 + promotion_multiplier) {
-				legal_moves.push_back(str_move + "-Q");
-				legal_moves.push_back(str_move + "-R");
-				legal_moves.push_back(str_move + "-B");
-				legal_moves.push_back(str_move + "-N");
-			}
-			else {
-				legal_moves.push_back(str_move);
-			}
+				// generate promotions
+				if (is_p_pawn && abs((64 * promotion_multiplier) - move) >= 56 + promotion_multiplier) {
+					legal_moves.push_back(str_move + "-Q");
+					legal_moves.push_back(str_move + "-R");
+					legal_moves.push_back(str_move + "-B");
+					legal_moves.push_back(str_move + "-N");
+				}
+				else {
+					legal_moves.push_back(str_move);
+				}			
+			//}
 		}
 	}
 	
 	// generate castling
-	bool* castle_rights = board->get_castle_rights();
 	if (side_turn) {
-		if (castle_rights[0])
+		if (board->can_castle('K', true))
 			legal_moves.push_back("O-O");
-		if (castle_rights[1])
+		if (board->can_castle('Q', true))
 			legal_moves.push_back("O-O-O");
 	}
 	else {
-		if (castle_rights[2])
+		if (board->can_castle('K', false))
 			legal_moves.push_back("o-o");
-		if (castle_rights[3])
+		if (board->can_castle('Q', false))
 			legal_moves.push_back("o-o-o");
 	}
 
@@ -120,7 +122,7 @@ int Stockfly::negamax(int depth, int alpha, int beta, Board* board) {
 		for (std::string move : moves) {
 			Ply* p = new Ply(move, board->get_player());
 			try {
-				board->move(p);
+				board->force_move(p);
 			}
 			catch (const std::invalid_argument& e) {
 				illegal_moves++;
@@ -147,7 +149,7 @@ int Stockfly::negamax(int depth, int alpha, int beta, Board* board) {
 		// no legal moves
 		if (moves.size() == illegal_moves) {
 			// if king in check: checkmate
-			if (board->get_king(board->get_player())->is_attacked(board)) {
+			if (board->get_king(board->get_player())->is_attacked(board).size()!=0) {
 				return bad_position;
 			}
 			// else stalemate

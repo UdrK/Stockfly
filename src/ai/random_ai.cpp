@@ -43,7 +43,7 @@ std::string Random_ai::move(Board* board) {
 		// once i have pseudolegal moves, let's look for legal moves
 		std::vector<int> legal_moves = {};
 		for (int move : moves) {
-			if (board->is_move_legal(pieces.at(piece_to_move), move)) {
+			if (board->is_move_legal(pieces.at(piece_to_move), move, false)) {
 				legal_moves.push_back(move);
 			}
 		}
