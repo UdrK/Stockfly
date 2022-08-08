@@ -69,7 +69,7 @@ std::vector<std::string> Stockfly::generate_moves(Board* board) {
 		std::vector<int> moves = p->pseudo_legal_moves(board);
 		bool is_p_pawn = p->get_appearance(true) == "P";
 		for (int move : moves) {
-			//if (board->is_move_legal(p, move, false)) {
+			if (board->is_move_legal(p, move, false)) {
 				// does not check if move is legal, we let that to board->move 
 				std::string str_move = piece_and_position_to_move(p, move);
 			
@@ -83,7 +83,7 @@ std::vector<std::string> Stockfly::generate_moves(Board* board) {
 				else {
 					legal_moves.push_back(str_move);
 				}			
-			//}
+			}
 		}
 	}
 	

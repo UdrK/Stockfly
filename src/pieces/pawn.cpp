@@ -9,6 +9,7 @@ Pawn::Pawn(bool side, int position) {
     else {
         Pawn::appearance = 'p';
     }
+    Pawn::agnostic_appearance = "P";
 }
 
 std::vector<int> Pawn::pseudo_legal_moves(Board* board) {

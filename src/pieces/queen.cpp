@@ -9,6 +9,7 @@ Queen::Queen(bool side, int position) {
     else {
         Queen::appearance = 'q';
     }
+    Queen::agnostic_appearance = 'Q';
 }
 
 std::vector<int> Queen::pseudo_legal_moves(Board* board) {

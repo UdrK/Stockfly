@@ -621,7 +621,7 @@ bool Board::is_move_legal(Piece* piece, int destination_square, bool check_pseud
         return is_legal;
     }
 
-        std::vector<int> pseudo_legal_move_list = piece->pseudo_legal_moves(this);
+    std::vector<int> pseudo_legal_move_list = piece->pseudo_legal_moves(this);
     // if move is pseudolegal, i check if the king would be in check after the move
     if (check_pseudo_legality) {
         if (!std::count(pseudo_legal_move_list.begin(), pseudo_legal_move_list.end(), destination_square))

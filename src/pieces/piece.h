@@ -10,6 +10,7 @@ public:
     int position;
     bool side;
     std::string appearance;
+    std::string agnostic_appearance;
 
     // methods
     // generic movement methods

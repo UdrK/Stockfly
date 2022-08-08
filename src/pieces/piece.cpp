@@ -286,9 +286,7 @@ std::string Piece::get_appearance(bool side_agnostic) {
 
     // returns upper case appearance independently of side
     if (side_agnostic) {
-        char piece_type = std::toupper(char(Piece::appearance[0]));
-        std::string agnostic_appearance(1, piece_type);
-        return agnostic_appearance;
+        return Piece::agnostic_appearance;
     }
     return Piece::appearance;
 }
