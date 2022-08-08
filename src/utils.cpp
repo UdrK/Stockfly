@@ -1,5 +1,4 @@
 ﻿#include "utils.h"
-#include "pieces/piece.h"
 #include <stdlib.h>
 #include <stdexcept>
 #include <string>

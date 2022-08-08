@@ -114,7 +114,8 @@ void ai_game_loop(Board* board, Ai* ai, bool player_side, int turn) {
 		while (!is_input_move_legal) {
 			system("cls");
 			std::cout << board->print_board(false);
-			std::string move = "";
+			std::string move_notation = "";
+			Ply* move;
 
 			if (tried_illegal_move) {
 				std::cout << "Illegal move, try again." << std::endl;
@@ -125,15 +126,17 @@ void ai_game_loop(Board* board, Ai* ai, bool player_side, int turn) {
 			else {
 				std::cout << "Black's turn, make a move > " << std::endl;
 			}
-			if (side_turn == player_side)
-				std::cin >> move;
+			if (side_turn == player_side) {
+				std::cin >> move_notation;
+				move = new Ply(move_notation, side_turn);
+			}
 			else
 				move = ai->move(board);
 
 			try {
-				Ply* p = new Ply(move, side_turn);
-				board->move(p);
-				delete p;
+				//Ply* p = new Ply(move, side_turn);
+				board->move(move);
+				delete move;
 				is_input_move_legal = true;
 				i += 1;
 

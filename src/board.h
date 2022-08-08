@@ -46,10 +46,9 @@ public:
     void update_castling_rights(std::string, std::string, int, int);
     void move_piece_to_empty_square(int, Piece*);
     Piece* move_piece_to(int, Piece*);
-    void un_castle(std::string, bool);
-    void castle(std::string);
-    Piece* promotion(std::string, bool);
-    void force_move(Ply*);
+    void un_castle(int, bool);
+    void castle(int);
+    Piece* promotion(int, int, bool);
     void move(Ply*);
     void undo_move(Ply*);
 

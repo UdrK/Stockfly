@@ -14,12 +14,13 @@ Random_ai::Random_ai(bool side) {
 	Random_ai::side = side;
 }
 
-std::vector<std::string> Random_ai::generate_moves(Board*) {
-	return std::vector<std::string>();
+std::vector<Ply*> Random_ai::generate_moves(Board*) {
+	return std::vector<Ply*>();
 }
 
-std::string Random_ai::move(Board* board) {
+Ply* Random_ai::move(Board* board) {
 	
+	/*
 	std::vector<Piece*> pieces = board->get_pieces(Random_ai::side);
 
 	int piece_to_move = 0;
@@ -66,4 +67,6 @@ std::string Random_ai::move(Board* board) {
 	move_notation += board_index_to_coordinates(actual_move);
 	
 	return move_notation;
+	*/
+	return NULL;
 }

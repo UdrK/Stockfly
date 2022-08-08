@@ -12,6 +12,6 @@ private:
 public:
 	Stockfly(bool, int);
 	int evaluate(Board*);
-	std::vector<std::string> generate_moves(Board*);
-	std::string move(Board*);
+	std::vector<Ply*> generate_moves(Board*);
+	Ply* move(Board*);
 };
