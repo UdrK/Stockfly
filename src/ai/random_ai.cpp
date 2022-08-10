@@ -10,63 +10,78 @@ int random_int_in_range(int lower, int upper) {
 	return distr(gen);
 }
 
+int Random_ai::evaluate(Board* board) {
+	return 0;
+}
+
 Random_ai::Random_ai(bool side) {
 	Random_ai::side = side;
 }
 
-std::vector<Ply*> Random_ai::generate_moves(Board*) {
-	return std::vector<Ply*>();
+std::vector<Ply*> Random_ai::generate_moves(Board* board) {
+	bool side_turn = board->get_player();
+	int promotion_multiplier = side_turn ? 1 : 0;
+	std::vector<Piece*> pieces = board->get_pieces(side_turn);
+	std::vector<Ply*> legal_moves = std::vector<Ply*>();
+
+	for (Piece* p : pieces) {
+		std::vector<int> moves = p->pseudo_legal_moves(board);
+		bool is_p_pawn = p->get_type() == 5;
+		for (int move : moves) {
+			if (board->is_move_legal(p, move, false)) {
+				// generate promotions
+				if (is_p_pawn && abs((64 * promotion_multiplier) - move) >= 56 + promotion_multiplier) {
+					for (int i = 0; i < 4; i++) {
+						Ply* current_ply = new Ply(p->position, move, side_turn, -1, i);
+						current_ply->set_legally_generated(true);
+						legal_moves.push_back(current_ply);
+					}
+				}
+				else {
+					Ply* current_ply = new Ply(p->position, move, side_turn, -1, -1);
+					current_ply->set_legally_generated(true);
+					legal_moves.push_back(current_ply);
+				}
+			}
+		}
+	}
+
+	// generate castling
+	if (side_turn) {
+		if (board->can_castle(true, true)) {
+			Ply* current_ply = new Ply(-1, -1, side_turn, 0, -1);
+			current_ply->set_legally_generated(true);
+			legal_moves.push_back(current_ply);
+		}
+
+		if (board->can_castle(false, true)) {
+			Ply* current_ply = new Ply(-1, -1, side_turn, 1, -1);
+			current_ply->set_legally_generated(true);
+			legal_moves.push_back(current_ply);
+		}
+	}
+	else {
+		if (board->can_castle(true, false)) {
+			Ply* current_ply = new Ply(-1, -1, side_turn, 2, -1);
+			current_ply->set_legally_generated(true);
+			legal_moves.push_back(current_ply);
+		}
+		if (board->can_castle(false, false)) {
+			Ply* current_ply = new Ply(-1, -1, side_turn, 3, -1);
+			current_ply->set_legally_generated(true);
+			legal_moves.push_back(current_ply);
+		}
+	}
+
+	// add castles to moves (what about promotion??)
+	return legal_moves;
 }
 
 Ply* Random_ai::move(Board* board) {
 	
-	/*
-	std::vector<Piece*> pieces = board->get_pieces(Random_ai::side);
+	std::vector<Ply*> legal_moves = generate_moves(board);
 
-	int piece_to_move = 0;
-	int actual_move = -1;
-	std::string move_notation;
-	std::vector<int> moves = {};
+	int random_move_index = random_int_in_range(0, legal_moves.size());
 
-	// while i've not come up with a move
-	while (actual_move == -1) {
-
-		// while the pieces i randomly pick don't have pseudolegal moves, pick a random piece
-		while (moves.size() == 0) {
-			piece_to_move = random_int_in_range(0, pieces.size());
-			moves = pieces.at(piece_to_move)->pseudo_legal_moves(board);
-			// if piece has no moves, remove it from list
-			if (moves.size() == 0) {
-				pieces.erase(pieces.begin() + piece_to_move);
-			}
-		}
-
-		// once i have pseudolegal moves, let's look for legal moves
-		std::vector<int> legal_moves = {};
-		for (int move : moves) {
-			if (board->is_move_legal(pieces.at(piece_to_move), move, false)) {
-				legal_moves.push_back(move);
-			}
-		}
-		// pick a random legal move if there are any
-		if (legal_moves.size() > 0) {
-			int move_index = random_int_in_range(0, legal_moves.size());
-			actual_move = legal_moves.at(move_index);
-		} // delete piece from list otherwise
-		else {
-			pieces.erase(pieces.begin() + piece_to_move);
-			moves = {};
-			legal_moves = {};
-		}
-	}
-
-	// move notation
-	move_notation = pieces.at(piece_to_move)->get_appearance(true);
-	move_notation += board_index_to_coordinates(pieces.at(piece_to_move)->position);
-	move_notation += "-";
-	move_notation += board_index_to_coordinates(actual_move);
-	
-	return move_notation;
-	*/
-	return NULL;
+	return legal_moves.at(random_move_index);
 }

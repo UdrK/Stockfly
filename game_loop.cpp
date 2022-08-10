@@ -2,8 +2,12 @@
 #include <vector>
 #include <string>
 #include <stdio.h>
+#include <winsock2.h>
 #include <windows.h>
 #include <stdexcept>
+
+#include <chrono>
+#include <thread>
 
 #include "src/board.h"
 #include "src/pieces/piece.h"
@@ -19,6 +23,20 @@
 #include "src/pieces/bishop.h"
 #include "src/pieces/knight.h"
 #include "src/pieces/pawn.h"
+
+
+
+#pragma comment(lib,"ws2_32.lib") //Winsock Library
+
+void send_gui(std::string fen, SOCKET s) {
+	char* message = const_cast<char*>(fen.c_str());
+
+	if (send(s, message, strlen(message), 0) < 0) {
+		std::cout << "Communication with Python GUI failed" << std::endl;
+		return;
+	}
+	std::cout << "Successfully exchanged FEN with Python GUI" << std::endl;
+}
 
 // 0 white's turn, 1 black's turn
 void game_loop(Board* board, int turn) {
@@ -189,13 +207,124 @@ void solitaire() {
 	while (true) {}
 }
 
-int loop() {
+void ai_vs_ai_loop(Board* board, Ai* ai1, Ai* ai2, int forced_time_between_moves, SOCKET s) {
+	int i = 0;
+	bool mate = false;
+	bool draw = false;
+	bool side_turn = (i % 2 == 0);
 
-	std::string debug_fen = "2r1kr1b/1b2p2p/4Npp1/p3N3/P1RP4/1P6/1B3PPP/2R3K1 w";
+	while (!mate && !draw) {
+
+		bool is_input_move_legal = false;
+		bool tried_illegal_move = false;
+		side_turn = (i % 2 == 0);
+
+		send_gui(board->get_fen(false), s);
+
+		if (forced_time_between_moves != -1) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(forced_time_between_moves));
+		}
+
+		Ply* move;
+		if (side_turn) {
+			move = ai1->move(board);
+		}
+		else {
+			move = ai2->move(board);
+		}
+
+		try {
+			board->move(move);
+			i += 1;
+			// this if would be for board->is_threefold_repetition()
+			// but not yet implemented
+			if (false) {
+				draw = true;
+				send_gui(board->get_fen(false), s);
+			}
+			else {
+				Piece* enemy_king = board->get_king(!side_turn);
+				if (enemy_king->is_attacked(board).size() != 0) {
+					if (board->is_mate(side_turn)) {
+						mate = true;
+						send_gui(board->get_fen(false), s);
+						send_gui("Game Ended", s);
+					}
+				}
+				else if (board->is_stalemate(side_turn)) {
+					draw = true;
+					send_gui(board->get_fen(false), s);
+					send_gui("Game Ended", s);
+				}
+				else if (board->is_draw_by_insufficient_material()) {
+					draw = true;
+					send_gui(board->get_fen(false), s);
+					send_gui("Game Ended", s);
+				}
+			}
+		}
+		catch (const std::invalid_argument& e) {
+			std::cout << "Ai" << (i % 2) + 1 << " tried illegal move" << std::endl;
+			std::cout << e.what() << std::endl;
+		}
+	}
+
+	std::string winner = side_turn ? "White" : "Black";
+
+	if (mate)
+		std::cout << "Checkmate!" << std::endl << winner << " won!";
+	else
+		std::cout << "Draw!";
+}
+
+int main() {
+
+	std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+	// starting Python GUI
+
+	// stuff to communicate with Python GUI
+	WSADATA wsa;
+	SOCKET s;
+	struct sockaddr_in server;
+
+	// initialising winsock
+	std::cout << "Initialising Winsock [...]" << std::endl;
+	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+	{
+		std::cout << "Failed. Error Code: " << WSAGetLastError() << std::endl;
+		return 1;
+	}
+
+	//Create a socket
+	std::cout << "Initialising Socket [..]" << std::endl;
+	if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+	{
+		std::cout << "Could not create socket: " << WSAGetLastError() << std::endl;
+	}
+
+	server.sin_addr.s_addr = inet_addr("127.0.0.1");
+	server.sin_family = AF_INET;
+	server.sin_port = htons(24718);
+
+	//Connect to remote server
+	if (connect(s, (struct sockaddr*)&server, sizeof(server)) < 0)
+	{
+		std::cout<<"connect error" << std::endl;
+		return 1;
+	}
+
+	std::cout << "Successful connection to Python GUI [.]" << std::endl;
 
 	Board* board = new Board("");
+	//ai_game_loop(board, new Stockfly(false, 3), true, 0);
 
-	ai_game_loop(board, new Stockfly(false, 3), true, 0);
+	std::cout << "Game starting now..." << std::endl;
+
+	send_gui("Game begins", s);
+
+	ai_vs_ai_loop(board, new Random_ai(true), new Stockfly(false, 4), 1000, s);
+
+	closesocket(s);
 
 	while (true) {}
 

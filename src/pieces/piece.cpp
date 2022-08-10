@@ -243,19 +243,21 @@ std::vector<int> Piece::pawn_movement(Board* board, int position, bool side) {
     int take_square_one = position + side_multiplier * 7;
     int take_square_two = position + side_multiplier * 9;
 
-    if (board->piece_at(take_square_one) != NULL && board->piece_at(take_square_one)->side != side) {
-        // position +- 7 leads to "teleport" when white borders the board to the right and black to the left
-        // so i only check this position when i'm white and not to the right, and when i'm black and not the left
-        if((side && file != 7) || (!side && file != 0))
-            list.push_back(take_square_one);
-    }
+    if (take_square_one >= 0 && take_square_one <= 63)
+        if (board->piece_at(take_square_one) != NULL && board->piece_at(take_square_one)->side != side) {
+            // position +- 7 leads to "teleport" when white borders the board to the right and black to the left
+            // so i only check this position when i'm white and not to the right, and when i'm black and not the left
+            if((side && file != 7) || (!side && file != 0))
+                list.push_back(take_square_one);
+        }
 
-    if (board->piece_at(take_square_two) != NULL && board->piece_at(take_square_two)->side != side) {
-        // position +- 9 leads to "teleport" when white borders the board to the left, and black to the right
-        // so i only check this position when i'm white and not to the left and when i'm black and not to the right
-        if ((side && file != 0) || (!side && file != 7))
-            list.push_back(take_square_two);
-    }
+    if (take_square_two >= 0 && take_square_two <= 63)
+        if (board->piece_at(take_square_two) != NULL && board->piece_at(take_square_two)->side != side) {
+            // position +- 9 leads to "teleport" when white borders the board to the left, and black to the right
+            // so i only check this position when i'm white and not to the left and when i'm black and not to the right
+            if ((side && file != 0) || (!side && file != 7))
+                list.push_back(take_square_two);
+        }
 
     // En Passant
 

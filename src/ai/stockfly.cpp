@@ -152,7 +152,6 @@ int Stockfly::negamax(int depth, int alpha, int beta, Board* board) {
 				// move is better than other previously considered move, therefore opponent will avoid this branch
 				return beta;
 			}
-			// >= ????
 			if (eval > alpha) {
 				alpha = eval;
 			}
