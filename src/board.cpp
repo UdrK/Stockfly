@@ -375,62 +375,63 @@ std::vector<int> Board::is_square_attacked_by(int square_index, bool side) {
     bool new_s_diag = true;     // nort-east to west - south diagonal
 
     // finding out if Kings, Queens, Rooks, or Pawns attack the square
-    // first we calculate sections of "north-bound" pieces trajectories
-    for (int i = 0; i < ranks_up; i++) {
+    for (int i = 0; i < 7; i++) {
 
-        // first the diagonal from the top left towards the piece
-        if (i < files_left && nwe_n_diag) {
+        // north west to east diagonal
+        if (nwe_n_diag && i < files_left && i < ranks_up) {
             int nort_west_east_diag = square_index - ((i + 1) * 9);
             // if there is a piece
             if (Board::board[nort_west_east_diag] != NULL) {
                 // no point in looking the squares behind it
                 nwe_n_diag = false;
                 Piece* piece = Board::piece_at(nort_west_east_diag);
-                int piece_type = piece->get_type();
-
+                
                 // if enemy piece
                 if (piece->side == side) {
+                    int piece_type = piece->get_type();
                     // since diagonal only Queen Bishop and Pawn or King (if close) can attack the square
                     if (piece_type == 1 || piece_type == 3) {
                         attackers_positions.push_back(nort_west_east_diag);
-                    } else if (i==0 && ((!side && piece_type == 5) || piece_type == 0))
+                    }
+                    else if (i == 0 && ((!side && piece_type == 5) || piece_type == 0))
                         attackers_positions.push_back(nort_west_east_diag);
                 }
             }
         }
 
-        // then the orthogonal "file" from up to the piece
-        if (n_orth) {
+        // north file
+        if (n_orth && i < ranks_up) {
             int north_file = square_index - ((i + 1) * 8);
 
             if (Board::board[north_file] != NULL) {
                 n_orth = false;
                 Piece* piece = Board::piece_at(north_file);
-                int piece_type = piece->get_type();
 
                 // if enemy piece
                 if (piece->side == side) {
+                    int piece_type = piece->get_type();
                     // since diagonal only Queen, Rook can attack the square
                     if (piece_type == 1 || piece_type == 2) {
                         attackers_positions.push_back(north_file);
-                    } else if (i == 0 && piece_type == 0)
+                    }
+                    else if (i == 0 && piece_type == 0)
                         attackers_positions.push_back(north_file);
                 }
             }
         }
 
-        // then the diagonal from the top right to the piece
-        if (i < files_right && new_n_diag) {
+        // north east to west diagonal
+        if (new_n_diag && i < files_right && i < ranks_up) {
             int north_east_west_diag = square_index - ((i + 1) * 7);
 
             if (Board::board[north_east_west_diag] != NULL) {
                 // no point in looking the squares behind it
                 new_n_diag = false;
                 Piece* piece = Board::piece_at(north_east_west_diag);
-                int piece_type = piece->get_type();
 
                 // if enemy piece
                 if (piece->side == side) {
+                    int piece_type = piece->get_type();
                     // since diagonal only Queen Bishop and Pawn or King (if close) can attack the square
                     if (piece_type == 1 || piece_type == 3) {
                         attackers_positions.push_back(north_east_west_diag);
@@ -440,84 +441,82 @@ std::vector<int> Board::is_square_attacked_by(int square_index, bool side) {
                 }
             }
         }
-    }
 
-    // (left of piece)
-    for (int i = 0; i < files_left && west_orth; i++) {
-        int west_file = square_index - ((i + 1) * 1);
+        // west rank
+        if (west_orth && i < files_left) {
+            int west_file = square_index - ((i + 1) * 1);
 
-        if (Board::board[west_file] != NULL) {
-            west_orth = false;
-            Piece* piece = Board::piece_at(west_file);
-            int piece_type = piece->get_type();
-
-            // if enemy piece
-            if (piece->side == side) {
-                // since diagonal only Queen, Rook can attack the square
-                if (piece_type == 1 || piece_type == 2) {
-                    attackers_positions.push_back(west_file);
-                }
-                else if (i == 0 && piece_type == 0)
-                    attackers_positions.push_back(west_file);
-            }
-        }
-    }
-
-    // (right of piece)
-    for (int i = 0; i < files_right && east_orth; i++) {
-        int east_file = square_index + ((i + 1) * 1);
-
-        if (Board::board[east_file] != NULL) {
-            east_orth = false;
-            Piece* piece = Board::piece_at(east_file);
-            int piece_type = piece->get_type();
-
-            // if enemy piece
-            if (piece->side == side) {
-                // since diagonal only Queen, Rook can attack the square
-                if (piece_type == 1 || piece_type == 2) {
-                    attackers_positions.push_back(east_file);
-                }
-                else if (i == 0 && piece_type == 0)
-                    attackers_positions.push_back(east_file);
-            }
-        }
-    }
-
-    // same as up, but down
-    for (int i = 0; i < ranks_down; i++) {
-
-        if (i < files_left && nwe_s_diag) {
-            int sotuh_west_east_diag = square_index + ((i + 1) * 7);
-
-            if (Board::board[sotuh_west_east_diag] != NULL) {
-                // no point in looking the squares behind it
-                nwe_s_diag = false;
-                Piece* piece = Board::piece_at(sotuh_west_east_diag);
-                int piece_type = piece->get_type();
+            if (Board::board[west_file] != NULL) {
+                west_orth = false;
+                Piece* piece = Board::piece_at(west_file);
 
                 // if enemy piece
                 if (piece->side == side) {
-                    // since diagonal only Queen Bishop and Pawn or King (if close) can attack the square
-                    if (piece_type == 1 || piece_type == 3) {
-                        attackers_positions.push_back(sotuh_west_east_diag);
+                    int piece_type = piece->get_type();
+                    // since diagonal only Queen, Rook can attack the square
+                    if (piece_type == 1 || piece_type == 2) {
+                        attackers_positions.push_back(west_file);
                     }
-                    else if (i == 0 && ((side && piece_type == 5) || piece_type == 0))
-                        attackers_positions.push_back(sotuh_west_east_diag);
+                    else if (i == 0 && piece_type == 0)
+                        attackers_positions.push_back(west_file);
                 }
             }
         }
 
-        if (s_orth) {
+        // east rank
+        if (east_orth && i < files_right) {
+            int east_file = square_index + ((i + 1) * 1);
+
+            if (Board::board[east_file] != NULL) {
+                east_orth = false;
+                Piece* piece = Board::piece_at(east_file);
+
+                // if enemy piece
+                if (piece->side == side) {
+                    int piece_type = piece->get_type();
+                    // since diagonal only Queen, Rook can attack the square
+                    if (piece_type == 1 || piece_type == 2) {
+                        attackers_positions.push_back(east_file);
+                    }
+                    else if (i == 0 && piece_type == 0)
+                        attackers_positions.push_back(east_file);
+                }
+            }
+        }
+        
+        // north west to east south section of the diagonal
+        if (nwe_s_diag && i < files_left && i < ranks_down) {
+            int south_west_east_diag = square_index + ((i + 1) * 7);
+
+            if (Board::board[south_west_east_diag] != NULL) {
+                // no point in looking the squares behind it
+                nwe_s_diag = false;
+                Piece* piece = Board::piece_at(south_west_east_diag);
+
+                // if enemy piece
+                if (piece->side == side) {
+                    int piece_type = piece->get_type();
+                    // since diagonal only Queen Bishop and Pawn or King (if close) can attack the square
+                    if (piece_type == 1 || piece_type == 3) {
+                        attackers_positions.push_back(south_west_east_diag);
+                    }
+                    else if (i == 0 && ((side && piece_type == 5) || piece_type == 0))
+                        attackers_positions.push_back(south_west_east_diag);
+                }
+            }
+        }
+
+        // south file
+        if (s_orth && i < ranks_down) {
             int south_file = square_index + ((i + 1) * 8);
 
             if (Board::board[south_file] != NULL) {
                 s_orth = false;
                 Piece* piece = Board::piece_at(south_file);
-                int piece_type = piece->get_type();
 
                 // if enemy piece
                 if (piece->side == side) {
+                    int piece_type = piece->get_type();
                     // since diagonal only Queen, Rook can attack the square
                     if (piece_type == 1 || piece_type == 2) {
                         attackers_positions.push_back(south_file);
@@ -528,17 +527,18 @@ std::vector<int> Board::is_square_attacked_by(int square_index, bool side) {
             }
         }
 
-        if (i < files_right && new_s_diag) {
+        // north east to west south section of diagonal
+        if (new_s_diag && i < files_right && i < ranks_down) {
             int south_east_west_diag = square_index + ((i + 1) * 9);
 
             if (Board::board[south_east_west_diag] != NULL) {
                 // no point in looking the squares behind it
                 new_s_diag = false;
                 Piece* piece = Board::piece_at(south_east_west_diag);
-                int piece_type = piece->get_type();
 
                 // if enemy piece
                 if (piece->side == side) {
+                    int piece_type = piece->get_type();
                     // since diagonal only Queen Bishop and Pawn or King (if close) can attack the square
                     if (piece_type == 1 || piece_type == 3) {
                         attackers_positions.push_back(south_east_west_diag);
@@ -550,63 +550,71 @@ std::vector<int> Board::is_square_attacked_by(int square_index, bool side) {
         }
     }
 
+    int move = square_index - 17;
     // finding out if knights attack the square
     // if at least 2 ranks north of the piece
     if (rank > 1) {
 
         // if enough room (at least 1 file) to the left
         if (file > 0) {
-            Piece* piece = Board::board[square_index - 17];
+            Piece* piece = Board::board[move];
             if (piece && piece->side == side && piece->get_type() == 4)
-                attackers_positions.push_back(square_index - 17);
+                attackers_positions.push_back(move);
         }
 
         // same but right
         if (file < 7) {
-            Piece* piece = Board::board[square_index - 15];
+            move = square_index - 15;
+            Piece* piece = Board::board[move];
             if (piece && piece->side == side && piece->get_type() == 4)
-                attackers_positions.push_back(square_index - 15);
+                attackers_positions.push_back(move);
         }
     }
 
     // if at least 1 rank north of the piece
     if (rank > 0) {
         if (file > 1) {
-            Piece* piece = Board::board[square_index - 10];
+            move = square_index - 10;
+            Piece* piece = Board::board[move];
             if (piece && piece->side == side && piece->get_type() == 4)
-                attackers_positions.push_back(square_index - 10);
+                attackers_positions.push_back(move);
         }
         if (file < 6) {
-            Piece* piece = Board::board[square_index - 6];
+            move = square_index - 6;
+            Piece* piece = Board::board[move];
             if (piece && piece->side == side && piece->get_type() == 4)
-                attackers_positions.push_back(square_index - 6);
+                attackers_positions.push_back(move);
         }
     }
 
     //  same but south
     if (rank < 7) {
         if (file > 1) {
-            Piece* piece = Board::board[square_index + 6];
+            move = square_index + 6;
+            Piece* piece = Board::board[move];
             if (piece && piece->side == side && piece->get_type() == 4)
-                attackers_positions.push_back(square_index + 6);
+                attackers_positions.push_back(move);
         }
         if (file < 6) {
-            Piece* piece = Board::board[square_index + 10];
+            move = square_index + 10;
+            Piece* piece = Board::board[move];
             if (piece && piece->side == side && piece->get_type() == 4)
-                attackers_positions.push_back(square_index + 10);
+                attackers_positions.push_back(move);
         }
     }
 
     if (rank < 6) {
         if (file > 0) {
-            Piece* piece = Board::board[square_index + 15];
+            move = square_index + 15;
+            Piece* piece = Board::board[move];
             if (piece && piece->side == side && piece->get_type() == 4)
-                attackers_positions.push_back(square_index + 15);
+                attackers_positions.push_back(move);
         }
         if (file < 7) {
-            Piece* piece = Board::board[square_index + 17];
+            move = square_index + 17;
+            Piece* piece = Board::board[move];
             if (piece && piece->side == side && piece->get_type() == 4)
-                attackers_positions.push_back(square_index + 17);
+                attackers_positions.push_back(move);
         }
     }
 

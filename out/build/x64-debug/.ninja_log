@@ -83,3 +83,13 @@
 3	366	6818264919994360	CMakeFiles/stockfly.dir/src/pieces/piece.cpp.obj	465c23b3b5fa50a3
 1	555	6818264921876070	CMakeFiles/stockfly.dir/src/board.cpp.obj	c9b695e78271ca97
 555	652	6818264922706870	stockfly.exe	601b9eb6d3a443e4
+4	682	6818273130859985	CMakeFiles/stockfly.dir/src/pieces/piece.cpp.obj	465c23b3b5fa50a3
+1	854	6818273132561538	CMakeFiles/stockfly.dir/src/board.cpp.obj	c9b695e78271ca97
+854	969	6818273133582497	stockfly.exe	601b9eb6d3a443e4
+1	564	6818274187435122	CMakeFiles/stockfly.dir/src/board.cpp.obj	c9b695e78271ca97
+564	665	6818274188275884	stockfly.exe	601b9eb6d3a443e4
+3	821	6818296055568213	CMakeFiles/stockfly.dir/src/board.cpp.obj	c9b695e78271ca97
+1	1659	6818296063935933	CMakeFiles/stockfly.dir/test.cpp.obj	7d7d18df57b59b85
+1660	1777	6818296064806732	stockfly.exe	601b9eb6d3a443e4
+1	1654	6818314651682322	CMakeFiles/stockfly.dir/test.cpp.obj	7d7d18df57b59b85
+1655	1769	6818314652653210	stockfly.exe	601b9eb6d3a443e4

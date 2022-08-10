@@ -76,7 +76,7 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
             }
         }
 
-        // west rank
+        
         if (orthogonal && west_orth && i < files_left) {
             int west_file = position - ((i + 1) * 1);
             if ((board->piece_at(west_file) == NULL) ||
