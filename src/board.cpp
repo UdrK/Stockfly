@@ -1141,6 +1141,7 @@ void Board::move(Ply* ply) {
         ply->set_taken_piece(ply_taken_piece);
         ply->set_taken_square(ply_taken_square);
         ply->set_promotion(promotion);
+        ply->set_promotion_piece(ply_promotion_piece);
 
         // this has to be done only when the move is actually made, not when the move is "tried" by the AI
         // positions_fens.push_back(Board::get_fen(true));
