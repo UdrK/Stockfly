@@ -6,7 +6,8 @@
 
 std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bool king, bool diagonal, bool orthogonal) {
 
-    std::vector<int> list = std::vector<int>();
+    std::vector<int> list;
+    list.reserve(30);
 
     // position = (8 * rank) + file
     int file = position % 8;
@@ -35,15 +36,13 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
     bool s_orth = true;         // south orthogonal
     bool new_s_diag = true;     // nort-east to west - south diagonal
 
-    // first we calculate sections of "north-bound" pieces trajectories
-    for (int i = 0; i < ranks_up; i++) {
-
-        // first the diagonal from the top left towards the piece
-        if (i < files_left && diagonal && nwe_n_diag) {
+    for (int i = 0; i < 7; i++) {   // 7 max possible "distance"
+        // north west to east diagonal
+        if (diagonal && nwe_n_diag && i < files_left && i < ranks_up) {
             int nort_west_east_diag = position - ((i + 1) * 9);
             // other sections of pieces trajectories work the same:
             // if empty square or enemy piece, add as possible move
-            if ((board->piece_at(nort_west_east_diag) == NULL) || 
+            if ((board->piece_at(nort_west_east_diag) == NULL) ||
                 (board->piece_at(nort_west_east_diag)->side != side)) {
                 list.push_back(nort_west_east_diag);
             }
@@ -53,8 +52,8 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
             }
         }
 
-        // then the orthogonal "file" from up to the piece
-        if (orthogonal && n_orth) {
+        // north file
+        if (orthogonal && n_orth && i < ranks_up) {
             int north_file = position - ((i + 1) * 8);
             if ((board->piece_at(north_file) == NULL) ||
                 (board->piece_at(north_file)->side != side)) {
@@ -65,8 +64,8 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
             }
         }
 
-        // then the diagonal from the top right to the piece
-        if (i < files_right && diagonal && new_n_diag) {
+        // north east to west diagonal
+        if (diagonal && new_n_diag && i < files_right && i < ranks_up) {
             int north_east_west_diag = position - ((i + 1) * 7);
             if ((board->piece_at(north_east_west_diag) == NULL) ||
                 (board->piece_at(north_east_west_diag)->side != side)) {
@@ -75,14 +74,10 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
             if (board->piece_at(north_east_west_diag) != NULL) {
                 new_n_diag = false;
             }
-            
         }
-    }
 
-    // orthogonal rank-like possible moves 
-    if (orthogonal) {
-        // (left of piece)
-        for (int i = 0; i < files_left && west_orth; i++) {
+        // west rank
+        if (orthogonal && west_orth && i < files_left) {
             int west_file = position - ((i + 1) * 1);
             if ((board->piece_at(west_file) == NULL) ||
                 (board->piece_at(west_file)->side != side)) {
@@ -93,8 +88,8 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
             }
         }
 
-        // (right of piece)
-        for (int i = 0; i < files_right && east_orth; i++) {
+        // east rank
+        if (orthogonal && east_orth && i < files_right) {
             int east_file = position + ((i + 1) * 1);
             if ((board->piece_at(east_file) == NULL) ||
                 (board->piece_at(east_file)->side != side)) {
@@ -104,12 +99,9 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
                 east_orth = false;
             }
         }
-    }
 
-    // same as up, but down
-    for (int i = 0; i < ranks_down; i++) {
-
-        if (i < files_left && diagonal && nwe_s_diag) {
+        // north west to east south section of the diagonal
+        if (diagonal && nwe_s_diag && i < files_left && i < ranks_down) {
             int nort_west_east_diag = position + ((i + 1) * 7);
             if ((board->piece_at(nort_west_east_diag) == NULL) ||
                 (board->piece_at(nort_west_east_diag)->side != side)) {
@@ -120,7 +112,8 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
             }
         }
 
-        if (orthogonal && s_orth) {
+        // south file
+        if (orthogonal && s_orth && i < ranks_down) {
             int north_file = position + ((i + 1) * 8);
             if ((board->piece_at(north_file) == NULL) ||
                 (board->piece_at(north_file)->side != side)) {
@@ -131,7 +124,8 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
             }
         }
 
-        if (i < files_right && diagonal && new_s_diag) {
+        // north east to west south section of diagonal
+        if (diagonal && new_s_diag && i < files_right && i < ranks_down) {
             int north_east_west_diag = position + ((i + 1) * 9);
             if ((board->piece_at(north_east_west_diag) == NULL) ||
                 (board->piece_at(north_east_west_diag)->side != side)) {
@@ -142,13 +136,14 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
             }
         }
     }
-
+     
     return list;
 }
 
 std::vector<int> Piece::knight_movement(Board* board, int position, bool side) {
 
-    std::vector<int> list = std::vector<int>();
+    std::vector<int> list;
+    list.reserve(10);
 
     // position = (8 * rank) + file
     int file = position % 8;
@@ -218,6 +213,7 @@ std::vector<int> Piece::knight_movement(Board* board, int position, bool side) {
 std::vector<int> Piece::pawn_movement(Board* board, int position, bool side) {
 
     std::vector<int> list;
+    list.reserve(10);
 
     // pawns move in different directions based on player color
     // this allows generalization

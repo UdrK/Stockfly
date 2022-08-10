@@ -1868,14 +1868,14 @@ int main() {
 
     */
 
-    int depth = 4;
+    int depth = 3;
     std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq 8";
     //fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ 8";
     //fen = "";
 
     time_test("Move generation timing test \n Recursively generating all moves \n Depth " + std::to_string(depth) + " \n Time: ", fen, depth, &move_generation_time_test);
 
-    time_test("Move generation timing test \n Stockfly Negamax \n Depth " + std::to_string(depth) + " \n Time: ", fen, depth, &stockfly_negamax_time_test);
+    //time_test("Move generation timing test \n Stockfly Negamax \n Depth " + std::to_string(depth) + " \n Time: ", fen, depth, &stockfly_negamax_time_test);
 
     cout << separator << endl;
 

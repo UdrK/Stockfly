@@ -634,10 +634,8 @@ bool Board::is_move_legal(Piece* piece, int destination_square, bool check_pseud
 
     Piece* backup_taken_piece = Board::move_piece_to(destination_square, piece);
 
-    int king_square = Board::get_king(piece->side)->position;
-    // if AFTER THE MOVE the king is NOT in check, then move is LEGAL
-    
-    if(Board::is_square_attacked_by(king_square, !piece->side).size()==0)
+    // if AFTER THE MOVE the king is NOT in check, then move is LEGAL    
+    if (Board::get_king(piece->side)->is_attacked(this).size()==0)
         is_legal = true;
     
     // undoing move
