@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include "pieces/piece.h"
+#include "ply.h"
 
 extern std::map<std::string, std::string> unicode_pieces;
 

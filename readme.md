@@ -164,7 +164,7 @@ Now consider the following tree:
 
 ![Alpha-beta example tree](https://github.com/UdrK/stockfly/blob/master/res/readme/alpha_beta_tree.png?raw=true)
 
-Note that nodes (positions) have been given names (letters). By solving the left subtree we find that Max-player will obtain a score of 4 by playing the entering the 'b' position, this is evident since, if Max plays 'b', Min will play 'e' to minimize the final game's score.
+Note that nodes (positions) have been given names (letters). By solving the left subtree we find that Max-player will obtain a score of 4 by playing the 'b' position, this is evident since, if Max plays 'b', Min will play 'e' to minimize the final game's score.
 Now consider the right subtree, in particular, consider the situation Min encounters when they evaluate the 'f' position and get a score of 1. In this situation it's possible to leverage 2 facts to completely avoid evaluating 'g':
 
 - Max can obtain a score of 4 by playing 'b'
@@ -255,7 +255,13 @@ Max(state=a, α=-∞, β=+∞)
 
 ### How to get there
 
-As of now the AI lacks some optimization which can allow it to search deeper in the tree and in general play better:
+As of now, the main limiting factor is the speed of move generation: the current code is capable of generating about 100.000 positions in around 200 milliseconds. This may seem a lot, but
+it's actually rather slow. I suspect the main limiting factor is the heavy use of heap memory and the frequent calls to methods which, while making the code clean, readable, generic and beautiful, lack in speed.
+
+Therefore, after refining a bit this first prototype of AI, i plan on tagging that version and start from scratch, using a different technique for board representation known as Bitboards. The ultimate goal
+is being able to generate millions of positions per second.
+
+Furthermore the AI lacks some optimization which can allow it to search deeper in the tree and in general play better:
 - An opening book, so the AI plays decent moves when the search would have to go too deep to actually understand what moves are good
 - Search optimizations to search deeper than 4 ply, including but not limited to: an heuristic to order moves from most likely best to least like best, a transposition table to avoid evaluating a position 
 already considered, quiescence search to mitigate the horizon problem, heuristics to make a better static evaluation

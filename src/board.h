@@ -35,21 +35,20 @@ public:
     char* print_board(bool unicode = true);
 
     // Chess logic
-    bool is_promotion(std::string, int);
+    bool is_promotion(int, int);
     std::vector<int> is_square_attacked_by(int, bool);
     bool is_move_legal(Piece*, int, bool);
     bool is_mate(bool);
     bool is_draw_by_insufficient_material();
     bool is_stalemate(bool);
     bool is_threefold_repetition();
-    bool can_castle(char, bool);
-    void update_castling_rights(std::string, std::string, int, int);
+    bool can_castle(bool, bool);
+    void update_castling_rights(int, int, int, int);
     void move_piece_to_empty_square(int, Piece*);
     Piece* move_piece_to(int, Piece*);
-    void un_castle(std::string, bool);
-    void castle(std::string);
-    Piece* promotion(std::string, bool);
-    void force_move(Ply*);
+    void un_castle(int, bool);
+    void castle(int);
+    Piece* promotion(int, int, bool);
     void move(Ply*);
     void undo_move(Ply*);
 

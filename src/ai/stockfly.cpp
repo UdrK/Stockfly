@@ -23,30 +23,30 @@ int Stockfly::material_imbalance(Board* board) {
 	int material_imbalance = 0;
 
 	for (Piece* piece : white_pieces) {
-		std::string piece_type = piece->get_appearance(true);
-		if (piece_type == "P")
+		int piece_type = piece->get_type();
+		if (piece_type == 5)
 			material_imbalance += pawn;
-		if (piece_type == "K")
+		if (piece_type == 4)
 			material_imbalance += knight;
-		if (piece_type == "B")
+		if (piece_type == 3)
 			material_imbalance += bishop;
-		if (piece_type == "R")
+		if (piece_type == 2)
 			material_imbalance += rook;
-		if (piece_type == "Q")
+		if (piece_type == 1)
 			material_imbalance += queen;
 	}
 
 	for (Piece* piece : black_pieces) {
-		std::string piece_type = piece->get_appearance(true);
-		if (piece_type == "P")
+		int piece_type = piece->get_type();
+		if (piece_type == 5)
 			material_imbalance -= pawn;
-		if (piece_type == "K")
+		if (piece_type == 4)
 			material_imbalance -= knight;
-		if (piece_type == "B")
+		if (piece_type == 3)
 			material_imbalance -= bishop;
-		if (piece_type == "R")
+		if (piece_type == 2)
 			material_imbalance -= rook;
-		if (piece_type == "Q")
+		if (piece_type == 1)
 			material_imbalance -= queen;
 	}
 
@@ -58,30 +58,30 @@ int Stockfly::evaluate(Board* board) {
 	return material_imbalance(board) * side_multiplier;
 }
 
-std::vector<std::string> Stockfly::generate_moves(Board* board) {
+std::vector<Ply*> Stockfly::generate_moves(Board* board) {
 
 	bool side_turn = board->get_player();
 	int promotion_multiplier = side_turn ? 1 : 0;
 	std::vector<Piece*> pieces = board->get_pieces(side_turn);
-	std::vector<std::string> legal_moves = std::vector<std::string>();
+	std::vector<Ply*> legal_moves = std::vector<Ply*>();
 
 	for (Piece* p : pieces) {
 		std::vector<int> moves = p->pseudo_legal_moves(board);
-		bool is_p_pawn = p->get_appearance(true) == "P";
+		bool is_p_pawn = p->get_type() == 5;
 		for (int move : moves) {
 			if (board->is_move_legal(p, move, false)) {
-				// does not check if move is legal, we let that to board->move 
-				std::string str_move = piece_and_position_to_move(p, move);
-			
 				// generate promotions
 				if (is_p_pawn && abs((64 * promotion_multiplier) - move) >= 56 + promotion_multiplier) {
-					legal_moves.push_back(str_move + "-Q");
-					legal_moves.push_back(str_move + "-R");
-					legal_moves.push_back(str_move + "-B");
-					legal_moves.push_back(str_move + "-N");
+					for (int i = 0; i < 4; i++) {
+						Ply* current_ply = new Ply(p->position, move, side_turn, -1, i);
+						current_ply->set_legally_generated(true);
+						legal_moves.push_back(current_ply);
+					}
 				}
 				else {
-					legal_moves.push_back(str_move);
+					Ply* current_ply = new Ply(p->position, move, side_turn, -1, -1);
+					current_ply->set_legally_generated(true);
+					legal_moves.push_back(current_ply);
 				}			
 			}
 		}
@@ -89,16 +89,29 @@ std::vector<std::string> Stockfly::generate_moves(Board* board) {
 	
 	// generate castling
 	if (side_turn) {
-		if (board->can_castle('K', true))
-			legal_moves.push_back("O-O");
-		if (board->can_castle('Q', true))
-			legal_moves.push_back("O-O-O");
+		if (board->can_castle(true, true)) {
+			Ply* current_ply = new Ply(-1, -1, side_turn, 0, -1);
+			current_ply->set_legally_generated(true);
+			legal_moves.push_back(current_ply);
+		}
+			
+		if (board->can_castle(false, true)) {
+			Ply* current_ply = new Ply(-1, -1, side_turn, 1, -1);
+			current_ply->set_legally_generated(true);
+			legal_moves.push_back(current_ply);
+		}
 	}
 	else {
-		if (board->can_castle('K', false))
-			legal_moves.push_back("o-o");
-		if (board->can_castle('Q', false))
-			legal_moves.push_back("o-o-o");
+		if (board->can_castle(true, false)) {
+			Ply* current_ply = new Ply(-1, -1, side_turn, 2, -1);
+			current_ply->set_legally_generated(true);
+			legal_moves.push_back(current_ply);
+		}
+		if (board->can_castle(false, false)) {
+			Ply* current_ply = new Ply(-1, -1, side_turn, 3, -1);
+			current_ply->set_legally_generated(true);
+			legal_moves.push_back(current_ply);
+		}
 	}
 
 	// add castles to moves (what about promotion??)
@@ -116,13 +129,12 @@ int Stockfly::negamax(int depth, int alpha, int beta, Board* board) {
 		return static_evaluation;
 	}
 	else {
-		std::vector<std::string> moves = generate_moves(board);
+		std::vector<Ply*> moves = generate_moves(board);
 
 		int illegal_moves = 0;
-		for (std::string move : moves) {
-			Ply* p = new Ply(move, board->get_player());
+		for (Ply* p : moves) {
 			try {
-				board->force_move(p);
+				board->move(p);
 			}
 			catch (const std::invalid_argument& e) {
 				illegal_moves++;
@@ -140,7 +152,6 @@ int Stockfly::negamax(int depth, int alpha, int beta, Board* board) {
 				// move is better than other previously considered move, therefore opponent will avoid this branch
 				return beta;
 			}
-			// >= ????
 			if (eval > alpha) {
 				alpha = eval;
 			}
@@ -167,15 +178,14 @@ Stockfly::Stockfly(bool side, int search_depth) {
 	Stockfly::search_depth = search_depth;
 }
 
-std::string Stockfly::move(Board* board) {
-	std::vector<std::string> moves = generate_moves(board);
+Ply* Stockfly::move(Board* board) {
+	std::vector<Ply*> moves = generate_moves(board);
 
 	int side_multiplier = Stockfly::side ? 1 : -1;
 	int best_eval = bad_position;
-	std::string best_move = moves[0];
+	Ply* best_move = moves[0]->clone();
 
-	for (std::string move : moves) {
-		Ply* p = new Ply(move, board->get_player());
+	for (Ply* p : moves) {
 		try {
 			board->move(p);
 		}
@@ -186,7 +196,7 @@ std::string Stockfly::move(Board* board) {
 		int move_eval = -Stockfly::negamax(Stockfly::search_depth - 1, bad_position, good_position, board);
 		if (move_eval >= best_eval) {
 			best_eval = move_eval;
-			best_move = move;
+			best_move = p->clone();
 		}
 		board->undo_move(p);
 		delete p;

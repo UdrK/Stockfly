@@ -1548,8 +1548,9 @@ void promotion_test() {
             board->set_player(sides[i]);
             board->move(p);
             delete p;
+            std::string f = board->get_fen();
             if (i < 10) {
-                if (board->get_fen() == fens_after[i]) {
+                if (f == fens_after[i]) {
                     correct_counter++;
                 }
                 else {
@@ -1564,7 +1565,6 @@ void promotion_test() {
             else {
                 cout << "Promotion test " << i + 1 << " failed." << endl;
             }
-            
         }
         delete board;
     }
@@ -1701,11 +1701,11 @@ int move_generation_counter(int depth, Ai* ai, Board* board) {
         return 1;
     }
 
-    std::vector<std::string> moves = ai->generate_moves(board);
+    std::vector<Ply*> moves = ai->generate_moves(board);
     int positions_number = 0;
 
-    for (std::string move : moves) {
-        Ply* p = new Ply(move, board->get_player());
+    for (Ply* p : moves) {
+        //Ply* p = new Ply(move, board->get_player());
         try {
             board->move(p);
         }
@@ -1753,13 +1753,13 @@ int recursive_move_generation(Ai* ai, int depth, Board* board) {
         return 1;
     }
 
-    std::vector<std::string> moves = ai->generate_moves(board);
+    std::vector<Ply*> moves = ai->generate_moves(board);
 
     int res = 0;
 
-    for (std::string move : moves) {
-        Ply* p = new Ply(move, board->get_player());
-        board->force_move(p);
+    for (Ply* p : moves) {
+        //Ply* p = new Ply(move, board->get_player());
+        board->move(p);
         res += recursive_move_generation(ai, depth - 1, board);
         board->undo_move(p);
         delete p;
@@ -1799,9 +1799,9 @@ void time_test(std::string test_string, std::string fen, int depth, void (*funct
     
 }
 
-int main() {
+int test() {
     SetConsoleOutputCP(65001);
-    /*
+
     // board <-> fen tests
     fen_test(false);
 
@@ -1865,26 +1865,24 @@ int main() {
     fen_undo_move_test();
 
     undo_move_test();
-    */
-    int depth = 3;
+
+    int depth = 4;
     std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq 8";
     //fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ 8";
     //fen = "";
 
     time_test("Move generation timing test \n Recursively generating all moves \n Depth " + std::to_string(depth) + " \n Time: ", fen, depth, &move_generation_time_test);
 
-    //time_test("Move generation timing test \n Stockfly Negamax \n Depth " + std::to_string(depth) + " \n Time: ", fen, depth, &stockfly_negamax_time_test);
+    time_test("Move generation timing test \n Stockfly Negamax \n Depth " + std::to_string(depth) + " \n Time: ", fen, depth, &stockfly_negamax_time_test);
 
     cout << separator << endl;
 
-    /*
     try {
         move_generation_test(3);
     }
     catch (const std::invalid_argument& e) {
         cout << e.what();
     }
-    */
     
     return 0;
 }

@@ -9,7 +9,7 @@ King::King(bool side, int position) {
     else {
         King::appearance = 'k';
     }
-    King::agnostic_appearance = 'K';
+    King::piece_type = 0;
 }
 
 std::vector<int> King::pseudo_legal_moves(Board* board) {
