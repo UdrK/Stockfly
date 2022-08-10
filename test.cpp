@@ -1802,7 +1802,6 @@ void time_test(std::string test_string, std::string fen, int depth, void (*funct
 int main() {
     SetConsoleOutputCP(65001);
 
-    /*
     // board <-> fen tests
     fen_test(false);
 
@@ -1866,7 +1865,6 @@ int main() {
     fen_undo_move_test();
 
     undo_move_test();
-    */
 
     int depth = 3;
     std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq 8";

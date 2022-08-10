@@ -6,7 +6,7 @@
 
 std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bool king, bool diagonal, bool orthogonal) {
 
-    std::vector<int> list;
+    std::vector<int> list = std::vector<int>();
 
     // position = (8 * rank) + file
     int file = position % 8;
@@ -148,66 +148,67 @@ std::vector<int> Piece::piece_movement(Board* board, int position, bool side, bo
 
 std::vector<int> Piece::knight_movement(Board* board, int position, bool side) {
 
-    std::vector<int> list;
+    std::vector<int> list = std::vector<int>();
 
     // position = (8 * rank) + file
     int file = position % 8;
     int rank = ((position - file) / 8);
 
-    int ranks_up = rank;
-    int ranks_down = (7 - rank);
-    int files_left = file;
-    int files_right = (7 - file);
-
-    std::vector<int> candidate_moves;
+    int move = position - 17;
 
     // if at least 2 ranks north of the piece
     if (rank > 1) {
-
         // if enough room (at least 1 file) to the left
         if (file > 0) {
-            candidate_moves.push_back(position - 17);
+            if (board->piece_at(move) == NULL || board->piece_at(move)->side != side)
+                list.push_back(move);
         }
-
         // same but right
         if (file < 7) {
-            candidate_moves.push_back(position - 15);
+            move = position - 15;   
+            if (board->piece_at(move) == NULL || board->piece_at(move)->side != side)
+                list.push_back(move);
         }
     }
 
     // if at least 1 rank north of the piece
     if (rank > 0) {
         if (file > 1) {
-            candidate_moves.push_back(position - 10);
+            move = position - 10;
+            if (board->piece_at(move) == NULL || board->piece_at(move)->side != side)
+                list.push_back(move);
         }
         if (file < 6) {
-            candidate_moves.push_back(position - 6);
+            move = position - 6;
+            if (board->piece_at(move) == NULL || board->piece_at(move)->side != side)
+                list.push_back(move);
         }
     }
 
     //  same but south
     if (rank < 7) {
         if (file > 1) {
-            candidate_moves.push_back(position + 6);
+            move = position + 6;
+            if (board->piece_at(move) == NULL || board->piece_at(move)->side != side)
+                list.push_back(move);
         }
         if (file < 6) {
-            candidate_moves.push_back(position + 10);
+            move = position + 10;
+            if (board->piece_at(move) == NULL || board->piece_at(move)->side != side)
+                list.push_back(move);
         }
     }
 
     if (rank < 6) {
         if (file > 0) {
-            candidate_moves.push_back(position + 15);
+            move = position + 15;
+            if (board->piece_at(move) == NULL || board->piece_at(move)->side != side)
+                list.push_back(move);
         }
         if (file < 7) {
-            candidate_moves.push_back(position + 17);
-        }
-    }
-
-    // return only moves s.t. your knight doesn't take your pieces
-    for (int move : candidate_moves) {
-        if (board->piece_at(move) == NULL || board->piece_at(move)->side != side) {
-            list.push_back(move);
+            move = position + 17;
+            if (board->piece_at(move) == NULL || board->piece_at(move)->side != side)
+                list.push_back(move);
         }
     }
 
@@ -282,11 +283,10 @@ std::vector<int> Piece::is_attacked(Board* board) {
     return board->is_square_attacked_by(Piece::position, !Piece::side);
 }
 
-std::string Piece::get_appearance(bool side_agnostic) {
+int Piece::get_type() {
+    return Piece::piece_type;
+}
 
-    // returns upper case appearance independently of side
-    if (side_agnostic) {
-        return Piece::agnostic_appearance;
-    }
+std::string Piece::get_appearance() {
     return Piece::appearance;
 }

@@ -23,30 +23,30 @@ int Stockfly::material_imbalance(Board* board) {
 	int material_imbalance = 0;
 
 	for (Piece* piece : white_pieces) {
-		std::string piece_type = piece->get_appearance(true);
-		if (piece_type == "P")
+		int piece_type = piece->get_type();
+		if (piece_type == 5)
 			material_imbalance += pawn;
-		if (piece_type == "K")
+		if (piece_type == 4)
 			material_imbalance += knight;
-		if (piece_type == "B")
+		if (piece_type == 3)
 			material_imbalance += bishop;
-		if (piece_type == "R")
+		if (piece_type == 2)
 			material_imbalance += rook;
-		if (piece_type == "Q")
+		if (piece_type == 1)
 			material_imbalance += queen;
 	}
 
 	for (Piece* piece : black_pieces) {
-		std::string piece_type = piece->get_appearance(true);
-		if (piece_type == "P")
+		int piece_type = piece->get_type();
+		if (piece_type == 5)
 			material_imbalance -= pawn;
-		if (piece_type == "K")
+		if (piece_type == 4)
 			material_imbalance -= knight;
-		if (piece_type == "B")
+		if (piece_type == 3)
 			material_imbalance -= bishop;
-		if (piece_type == "R")
+		if (piece_type == 2)
 			material_imbalance -= rook;
-		if (piece_type == "Q")
+		if (piece_type == 1)
 			material_imbalance -= queen;
 	}
 
@@ -67,7 +67,7 @@ std::vector<Ply*> Stockfly::generate_moves(Board* board) {
 
 	for (Piece* p : pieces) {
 		std::vector<int> moves = p->pseudo_legal_moves(board);
-		bool is_p_pawn = p->get_appearance(true) == "P";
+		bool is_p_pawn = p->get_type() == 5;
 		for (int move : moves) {
 			if (board->is_move_legal(p, move, false)) {
 				// generate promotions
@@ -89,25 +89,25 @@ std::vector<Ply*> Stockfly::generate_moves(Board* board) {
 	
 	// generate castling
 	if (side_turn) {
-		if (board->can_castle('K', true)) {
+		if (board->can_castle(true, true)) {
 			Ply* current_ply = new Ply(-1, -1, side_turn, 0, -1);
 			current_ply->set_legally_generated(true);
 			legal_moves.push_back(current_ply);
 		}
 			
-		if (board->can_castle('Q', true)) {
+		if (board->can_castle(false, true)) {
 			Ply* current_ply = new Ply(-1, -1, side_turn, 1, -1);
 			current_ply->set_legally_generated(true);
 			legal_moves.push_back(current_ply);
 		}
 	}
 	else {
-		if (board->can_castle('K', false)) {
+		if (board->can_castle(true, false)) {
 			Ply* current_ply = new Ply(-1, -1, side_turn, 2, -1);
 			current_ply->set_legally_generated(true);
 			legal_moves.push_back(current_ply);
 		}
-		if (board->can_castle('Q', false)) {
+		if (board->can_castle(false, false)) {
 			Ply* current_ply = new Ply(-1, -1, side_turn, 3, -1);
 			current_ply->set_legally_generated(true);
 			legal_moves.push_back(current_ply);

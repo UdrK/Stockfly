@@ -9,7 +9,7 @@ Knight::Knight(bool side, int position) {
     else {
         Knight::appearance = 'n';
     }
-    Knight::agnostic_appearance = 'N';
+    Knight::piece_type = 4;
 }
 
 std::vector<int> Knight::pseudo_legal_moves(Board* board) {

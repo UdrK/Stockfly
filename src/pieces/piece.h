@@ -10,7 +10,7 @@ public:
     int position;
     bool side;
     std::string appearance;
-    std::string agnostic_appearance;
+    int piece_type;
 
     // methods
     // generic movement methods
@@ -22,5 +22,6 @@ public:
     virtual std::vector<int> pseudo_legal_moves(Board*) = 0;  // method that returns a list of indeces of squares on which the piece can move
 
     // Chess I/O
-    std::string get_appearance(bool);
+    std::string get_appearance();
+    int get_type();
 };

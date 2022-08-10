@@ -9,7 +9,7 @@ Bishop::Bishop(bool side, int position) {
     else {
         Bishop::appearance = 'b';
     }
-    Bishop::agnostic_appearance = 'B';
+    Bishop::piece_type = 3;
 }
 
 std::vector<int> Bishop::pseudo_legal_moves(Board* board) {

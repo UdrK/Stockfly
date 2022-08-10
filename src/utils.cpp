@@ -46,7 +46,31 @@ std::string board_index_to_coordinates(int index) {
 }
 
 std::string piece_and_position_to_move(Piece* piece, int position) {
-    std::string str_move = piece->get_appearance(true);
+    int piece_type = piece->get_type();
+    std::string str_move = "";
+    switch (piece_type) {
+    case 0:
+        str_move = 'K';
+        break;
+    case 1:
+        str_move = 'Q';
+        break;
+    case 2:
+        str_move = 'R';
+        break;
+    case 3:
+        str_move = 'B';
+        break;
+    case 4:
+        str_move = 'N';
+        break;
+    case 5:
+        str_move = 'P';
+        break;
+    default:
+        str_move = "";
+    }
+
     str_move += board_index_to_coordinates(piece->position);
     str_move += "-";
     str_move += board_index_to_coordinates(position);

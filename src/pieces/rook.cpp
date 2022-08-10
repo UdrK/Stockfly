@@ -9,7 +9,7 @@ Rook::Rook(bool side, int position) {
     else {
         Rook::appearance = 'r';
     }
-    Rook::agnostic_appearance = 'R';
+    Rook::piece_type = 2;
 }
 
 std::vector<int> Rook::pseudo_legal_moves(Board* board) {
