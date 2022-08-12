@@ -250,7 +250,7 @@ Max(state=a, α=-∞, β=+∞)
 - [x] A working chessboard with working logic
 - [x] A simple, adversarial search based AI
 - [ ] A refined version of such an AI capable of giving chess beginners a little headache and capable of beating the previous version consistently
-- [ ] A GUI
+- [x] A GUI
 - [ ] A computer vision based solution to play the AI on a real-life chess board
 
 ### How to get there
@@ -267,7 +267,7 @@ Furthermore the AI lacks some optimization which can allow it to search deeper i
 already considered, quiescence search to mitigate the horizon problem, heuristics to make a better static evaluation
 - Rules aided playing for endgames
 
-With the regards to the GUI i plan on using python's chess library as an interface. I suspect move input would still be command line based but i'm ok with it.
+With the regards to the GUI i am currently using python's chess library to generate a SVG file representing the board, this is then display using QT. Move input is command line based but i'm ok with it.
 
 Finally for the computer vision part of the project i plan on using a webcam to gather a dataset and probably train some version of yolo to do the object detection and classification. I'm still unsure on how
 to transform this data into a FEN to feed to the engine.
